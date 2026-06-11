@@ -1,0 +1,22 @@
+[package]
+name = "turbo-graph-python"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+description = "Python extension module for turbo-graph vector search and graph memory"
+license = "MIT"
+homepage = "https://github.com/bigmacfive/turbo-graph"
+repository = "https://github.com/bigmacfive/turbo-graph"
+publish = false
+
+[lib]
+name = "_turbo_graph"
+crate-type = ["cdylib"]
+
+[dependencies]
+turbo_graph_core = { package = "turbo-graph", path = "../turbo-graph" }
+pyo3 = { version = "0.27.0", features = ["extension-module", "abi3-py39"] }
+numpy = "0.27.0"
+
+[build-dependencies]
+pyo3-build-config = "0.27.0"

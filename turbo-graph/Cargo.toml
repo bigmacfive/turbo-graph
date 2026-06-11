@@ -1,0 +1,53 @@
+[package]
+name = "turbo-graph"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+description = "TurboQuant vector search plus graph and metadata memory for constrained RAG"
+license = "MIT"
+repository = "https://github.com/bigmacfive/turbo-graph"
+homepage = "https://github.com/bigmacfive/turbo-graph"
+readme = "README.md"
+keywords = ["vector-search", "quantization", "graph", "rag", "simd"]
+categories = ["algorithms", "science", "compression"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = []
+serde = ["dep:serde"]
+
+[lints.clippy]
+doc_lazy_continuation = "allow"
+empty_line_after_doc_comments = "allow"
+misnamed_getters = "allow"
+needless_range_loop = "allow"
+too_many_arguments = "allow"
+type_complexity = "allow"
+unusual_byte_groupings = "allow"
+useless_vec = "allow"
+
+[dependencies]
+ndarray = "0.17"
+rayon = "1.10"
+ordered-float = "4"
+rand = "0.8"
+rand_chacha = "0.3"
+rand_distr = "0.4"
+statrs = "0.17"
+faer = "0.20"
+serde = { version = "1.0", features = ["derive"], optional = true }
+
+[dev-dependencies]
+serde_json = "1.0"
+
+# build.rs emits the BLAS link directive directly (openblas on Linux,
+# Accelerate framework on macOS) so downstream binaries don't need to
+# include `extern crate blas_src;` to resolve `cblas_sgemm`.
+[target.'cfg(target_os = "macos")'.dependencies]
+ndarray = { version = "0.17", features = ["blas"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+ndarray = { version = "0.17", features = ["blas"] }

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 380" width="920" height="380">
+<style>
+  .title { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+  .subtitle { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+  .panel { font: 700 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+  .label { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+  .secondary { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+  .tick { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #64748b; }
+  .value { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+  .value-accent { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #4338ca; }
+  .axis { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #334155; }
+  .legend { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+</style>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#525252"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="460" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#171717">Where turbo-graph sits on top of turbovec</text>
+<text x="460" y="48" text-anchor="middle" font-size="11" fill="#737373">Same TurboQuant core; graph layer adds metadata, cache, and rerank</text>
+<text x="240" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="#171717">turbovec</text>
+<text x="680" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="#15803d">turbo-graph</text>
+<rect x="70.0" y="70" width="340" height="44" rx="6" fill="#635bff" stroke="#171717" stroke-width="1.2"/>
+<text x="240.0" y="88.0" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">turbovec</text>
+<text x="240.0" y="106.0" text-anchor="middle" font-size="9" fill="#ecfdf5">TurboQuant ANN core</text>
+<line x1="228.0" y1="116" x2="252.0" y2="116" stroke="#a3a3a3" stroke-width="1.2"/>
+<rect x="70.0" y="128" width="340" height="44" rx="6" fill="#635bff" stroke="#171717" stroke-width="1.2"/>
+<text x="240.0" y="146.0" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">allowlist / mask</text>
+<text x="240.0" y="164.0" text-anchor="middle" font-size="9" fill="#ecfdf5">in-kernel candidate filter</text>
+<line x1="228.0" y1="174" x2="252.0" y2="174" stroke="#a3a3a3" stroke-width="1.2"/>
+<rect x="70.0" y="186" width="340" height="44" rx="6" fill="#635bff" stroke="#171717" stroke-width="1.2"/>
+<text x="240.0" y="204.0" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">post-filter</text>
+<text x="240.0" y="222.0" text-anchor="middle" font-size="9" fill="#ecfdf5">optional metadata pass</text>
+<rect x="510.0" y="70" width="340" height="44" rx="6" fill="#635bff" stroke="#171717" stroke-width="1.2"/>
+<text x="680.0" y="88.0" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">turbovec</text>
+<text x="680.0" y="106.0" text-anchor="middle" font-size="9" fill="#ecfdf5">same TurboQuant core</text>
+<line x1="668.0" y1="116" x2="692.0" y2="116" stroke="#a3a3a3" stroke-width="1.2"/>
+<rect x="510.0" y="128" width="340" height="44" rx="6" fill="#15803d" stroke="#15803d" stroke-width="1.2"/>
+<text x="680.0" y="146.0" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">GraphMemoryIndex</text>
+<text x="680.0" y="164.0" text-anchor="middle" font-size="9" fill="#ecfdf5">graph + metadata + cache</text>
+<line x1="668.0" y1="174" x2="692.0" y2="174" stroke="#a3a3a3" stroke-width="1.2"/>
+<rect x="510.0" y="186" width="340" height="44" rx="6" fill="#15803d" stroke="#15803d" stroke-width="1.2"/>
+<text x="680.0" y="204.0" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">query assembly</text>
+<text x="680.0" y="222.0" text-anchor="middle" font-size="9" fill="#ecfdf5">graph + tags + source + time + candidates</text>
+<line x1="668.0" y1="232" x2="692.0" y2="232" stroke="#a3a3a3" stroke-width="1.2"/>
+<rect x="510.0" y="244" width="340" height="44" rx="6" fill="#15803d" stroke="#15803d" stroke-width="1.2"/>
+<text x="680.0" y="262.0" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">rerank + telemetry</text>
+<text x="680.0" y="280.0" text-anchor="middle" font-size="9" fill="#ecfdf5">optional second stage</text>
+<line x1="420" y1="172.0" x2="500" y2="172.0" stroke="#737373" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="460" y="162" text-anchor="middle" font-size="10" fill="#737373">shared core</text>
+<rect x="40" y="318" width="840" height="52" rx="8" fill="#fafafa" stroke="#e5e5e5"/>
+<text x="60" y="338" font-size="11" fill="#525252">turbo-graph does not replace allowlist/mask; it composes graph constraints with kernel filters.</text>
+<text x="60" y="356" font-size="11" fill="#525252">Use turbovec alone for pure ANN; add turbo-graph when you need structured memory over vectors.</text>
+</svg>

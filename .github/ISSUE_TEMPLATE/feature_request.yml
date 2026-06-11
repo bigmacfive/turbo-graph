@@ -1,0 +1,46 @@
+name: Feature request
+description: Propose a new capability or API improvement.
+title: "[feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please start with the product or retrieval problem. Implementation ideas are welcome after the use case is clear.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What real workflow is blocked or awkward today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed shape
+      description: API sketch, behavior, or docs shape you would like to see.
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Target surface
+      multiple: true
+      options:
+        - Rust core
+        - Rust graph memory
+        - Python core
+        - Python graph memory
+        - Framework integration
+        - Benchmarking
+        - Documentation
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: How are you working around this now?
+  - type: textarea
+    id: contribution
+    attributes:
+      label: Contribution intent
+      description: If you would like contributor access for a PR after discussion, say so here.

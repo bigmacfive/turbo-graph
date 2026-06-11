@@ -1,0 +1,1534 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Graph Memory Debug Panel</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
+
+    :root {
+      color-scheme: light;
+      --paper: #f8fafc;
+      --paper-soft: #f1f5fb;
+      --panel: #ffffff;
+      --ink: #1d2a3b;
+      --muted: #5d6a7f;
+      --line: #e3e7ef;
+      --line-strong: #c9d3e0;
+      --graph: #566578;
+      --graph-hit: #1f4f99;
+      --graph-hit-fill: #d8e8fc;
+      --graph-candidate: #8f6a23;
+      --graph-candidate-fill: #f0e8d2;
+      --focus: #1f4f99;
+      --shadow: 0 1px 2px rgba(19, 34, 57, 0.07);
+      --tone-down: #f3f7fb;
+      font-family: "Geist", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100vh;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    body {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      min-height: 0;
+    }
+
+    .toolbar,
+    .control-strip {
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 14px;
+      min-height: 48px;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .title {
+      font-size: 15px;
+      font-weight: 760;
+      margin-right: 6px;
+      white-space: nowrap;
+    }
+
+    button,
+    input,
+    textarea,
+    label {
+      font: inherit;
+    }
+
+    .toolbar button,
+    .toolbar input[type="file"] {
+      border: 1px solid var(--line-strong);
+      background: var(--panel);
+      color: var(--ink);
+      min-height: 32px;
+      border-radius: 7px;
+    }
+
+    .toolbar button {
+      padding: 0 12px;
+      cursor: pointer;
+    }
+
+    .toolbar button:active {
+      transform: translateY(0.5px);
+    }
+
+    .toolbar button.primary {
+      border-color: var(--focus);
+      background: var(--focus);
+      color: #fff;
+    }
+
+    .toolbar button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .toolbar input[type="file"] {
+      width: 250px;
+      padding: 0 8px;
+    }
+
+    .status {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+      min-width: 200px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .control {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .control label {
+      color: var(--muted);
+    }
+
+    .control input[type="range"] {
+      width: 140px;
+    }
+
+    .control input[type="number"] {
+      width: 75px;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      border-radius: 6px;
+      min-height: 28px;
+      padding: 0 6px;
+    }
+
+    .control .value {
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      background: var(--paper-soft);
+      padding: 2px 8px;
+      font-size: 11px;
+      color: var(--ink);
+    }
+
+    .main {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .graph-pane {
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) minmax(160px, 25vh);
+      border-right: 1px solid var(--line);
+      background: var(--paper);
+      position: relative;
+      height: 100%;
+    }
+
+    .graph-stage {
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+      border-bottom: 1px solid var(--line);
+      height: 100%;
+    }
+
+    #graphCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #graphCanvas canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .graph-hint {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      border: 1px solid var(--line-strong);
+      background: rgba(248, 250, 252, 0.92);
+      backdrop-filter: blur(2px);
+      border-radius: 6px;
+      font-size: 11px;
+      padding: 6px 8px;
+      color: var(--muted);
+      max-width: 380px;
+      line-height: 1.45;
+      pointer-events: none;
+      box-shadow: var(--shadow);
+    }
+
+    .json-area {
+      background: var(--panel);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 9px 10px 10px;
+      min-height: 0;
+    }
+
+    .json-area label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    textarea {
+      width: 100%;
+      resize: vertical;
+      min-height: 0;
+      height: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      padding: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.36;
+      color: #213046;
+      background: #fcfdff;
+    }
+
+    .json-actions {
+      margin-top: 8px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .json-actions button {
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      border-radius: 6px;
+      min-height: 28px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
+    .side {
+      min-width: 0;
+      background: var(--panel);
+      overflow: auto;
+      min-height: 0;
+    }
+
+    .section {
+      border-bottom: 1px solid var(--line);
+      padding: 12px 14px;
+    }
+
+    .section h2 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 8px;
+      min-width: 0;
+      background: #fff;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 18px;
+      line-height: 1.15;
+      margin-bottom: 4px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 11px;
+      display: block;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 8px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .item.active {
+      border-color: var(--focus);
+      background: #eef6fb;
+    }
+
+    .item .head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .pill {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--focus);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .item .name {
+      font-size: 12px;
+      font-weight: 560;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 6px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .scores {
+      margin-top: 6px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px 10px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .empty {
+      border: 1px dashed var(--line-strong);
+      color: var(--muted);
+      border-radius: 7px;
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .main {
+        grid-template-columns: 1fr;
+        grid-template-rows: 58vh auto;
+      }
+
+      .graph-pane {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .control input[type="range"] {
+        width: 110px;
+      }
+
+      .status {
+        margin-left: 0;
+        width: 100%;
+        text-align: left;
+      }
+
+      .toolbar {
+        padding-right: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+    <header class="toolbar">
+      <span class="title">Graph Memory Debug Panel</span>
+      <input id="fileInput" type="file" accept="application/json,.json" />
+      <button id="renderButton" class="primary">Render</button>
+      <button id="loadSample">Load sample</button>
+      <button id="loadStress">Load stress sample</button>
+      <button id="zoomReset">Reset view</button>
+      <span class="status" id="status">ready</span>
+    </header>
+
+  <div class="control-strip">
+    <span class="control">
+      <label for="nodeLimit">Visible nodes</label>
+      <input id="nodeLimit" type="range" min="200" max="120000" step="200" value="2000">
+      <span id="nodeLimitValue" class="value">2000</span>
+    </span>
+
+    <span class="control">
+      <label for="edgeLimit">Visible edges</label>
+      <input id="edgeLimit" type="range" min="500" max="500000" step="500" value="50000">
+      <span id="edgeLimitValue" class="value">50000</span>
+    </span>
+
+    <span class="control">
+      <label for="minEdgeWeight">Min edge</label>
+      <input id="minEdgeWeight" type="range" min="0" max="1" step="0.01" value="0.10">
+      <span id="minEdgeWeightValue" class="value">0.10</span>
+    </span>
+
+    <span class="control">
+      <input id="showLabels" type="checkbox" checked>
+      <label for="showLabels">Hover labels</label>
+    </span>
+  </div>
+
+  <main class="main">
+    <section class="graph-pane">
+      <div class="graph-stage" id="graphStage">
+        <div id="graphCanvas"></div>
+        <div id="graphHint" class="graph-hint"></div>
+      </div>
+
+      <div class="json-area">
+        <label for="jsonInput">Snapshot JSON</label>
+        <textarea id="jsonInput" spellcheck="false"></textarea>
+        <div class="json-actions">
+          <button id="applyJson">Apply JSON</button>
+          <button id="compactJson">Compact</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="section">
+        <h2>Summary</h2>
+        <div id="metrics" class="metrics"></div>
+      </section>
+      <section class="section">
+        <h2>Viewport hint</h2>
+        <div id="viewHint" class="list"></div>
+      </section>
+      <section class="section">
+        <h2>Hits</h2>
+        <div id="hits" class="list"></div>
+      </section>
+      <section class="section">
+        <h2>Selected node</h2>
+        <div id="selected" class="list"></div>
+      </section>
+    </aside>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/force-graph@1.51.4/dist/force-graph.min.js"></script>
+  <script>
+    const sampleSnapshot = buildDefaultSnapshot();
+
+    const graphCanvas = document.getElementById("graphCanvas");
+    const graphStage = document.getElementById("graphStage");
+    const graphHint = document.getElementById("graphHint");
+    const statusEl = document.getElementById("status");
+    const jsonInput = document.getElementById("jsonInput");
+    const renderButton = document.getElementById("renderButton");
+    const loadSample = document.getElementById("loadSample");
+    const loadStress = document.getElementById("loadStress");
+    const applyJson = document.getElementById("applyJson");
+    const compactJson = document.getElementById("compactJson");
+    const zoomReset = document.getElementById("zoomReset");
+    const fileInput = document.getElementById("fileInput");
+
+    const nodeLimitEl = document.getElementById("nodeLimit");
+    const edgeLimitEl = document.getElementById("edgeLimit");
+    const minEdgeWeightEl = document.getElementById("minEdgeWeight");
+    const showLabelsEl = document.getElementById("showLabels");
+
+    const nodeLimitValue = document.getElementById("nodeLimitValue");
+    const edgeLimitValue = document.getElementById("edgeLimitValue");
+    const minEdgeWeightValue = document.getElementById("minEdgeWeightValue");
+
+    const metricsEl = document.getElementById("metrics");
+    const viewHintEl = document.getElementById("viewHint");
+    const hitsEl = document.getElementById("hits");
+    const selectedEl = document.getElementById("selected");
+
+    const palette = {
+      paper: getComputedStyle(document.documentElement).getPropertyValue("--paper").trim(),
+      paperSoft: getComputedStyle(document.documentElement).getPropertyValue("--paper-soft").trim(),
+      muted: getComputedStyle(document.documentElement).getPropertyValue("--muted").trim(),
+      ink: getComputedStyle(document.documentElement).getPropertyValue("--ink").trim(),
+      focus: getComputedStyle(document.documentElement).getPropertyValue("--focus").trim(),
+    };
+
+    const tuning = {
+      edgeRenderCap: 90_000,
+      labelDensityCap: 12_000,
+      forceWarmupTicks: 140,
+      forceTicks: 120,
+    };
+
+    const state = {
+      raw: null,
+      nodes: [],
+      edges: [],
+      renderEdges: [],
+      nodeById: new Map(),
+      forceGraph: null,
+      forceData: { nodes: [], links: [] },
+      drawSchedule: 0,
+      selectedId: null,
+      hoveredId: null,
+      nodeLimit: 2_000,
+      edgeLimit: 50_000,
+      minEdgeWeight: 0.1,
+      showLabels: true,
+      edgeStride: 1,
+      edgeRenderCount: 0,
+      isDense: false,
+      layoutBounds: {
+        width: 1,
+        height: 1,
+      },
+      ready: false,
+    };
+
+    const hasForceGraph = typeof ForceGraph === "function";
+
+    function updateGraphBounds() {
+      const rect = graphStage.getBoundingClientRect();
+      state.layoutBounds.width = Math.max(1, Math.floor(rect.width));
+      state.layoutBounds.height = Math.max(1, Math.floor(rect.height));
+      if (state.forceGraph) {
+        state.forceGraph.width(state.layoutBounds.width).height(state.layoutBounds.height);
+      }
+    }
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function esc(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function num(value, decimals = 3) {
+      if (!Number.isFinite(Number(value))) return "-";
+      const fixed = Number(value).toFixed(decimals);
+      return fixed.replace(/(\.\d*?)0+$/u, "$1").replace(/\.$/u, "");
+    }
+
+    function pct(value) {
+      if (!Number.isFinite(Number(value))) return "-";
+      return `${(value * 100).toFixed(1)}%`;
+    }
+
+    function nsToMs(value) {
+      if (!Number.isFinite(Number(value))) return "-";
+      return `${(value / 1_000_000).toFixed(3)}ms`;
+    }
+
+    function scheduleDraw() {
+      if (state.drawSchedule) return;
+      state.drawSchedule = requestAnimationFrame(() => {
+        state.drawSchedule = 0;
+        if (state.forceGraph) {
+          if (typeof state.forceGraph.refresh === "function") {
+            state.forceGraph.refresh();
+          }
+          if (typeof state.forceGraph.resumeAnimation === "function") {
+            state.forceGraph.resumeAnimation();
+          }
+        }
+      });
+    }
+
+    function initForceGraph() {
+      if (!hasForceGraph) {
+        setStatus("force-graph library failed to load");
+        return;
+      }
+      if (state.forceGraph) return;
+
+      state.forceGraph = ForceGraph()(graphCanvas)
+        .width(state.layoutBounds.width)
+        .height(state.layoutBounds.height)
+        .backgroundColor(palette.paper)
+        .linkDirectionalArrowLength(0)
+        .d3AlphaDecay(0.022)
+        .d3VelocityDecay(0.45)
+        .d3AlphaMin(0.00001)
+        .warmupTicks(tuning.forceWarmupTicks)
+        .cooldownTicks(tuning.forceTicks)
+        .linkWidth((edge) => {
+          const weight = edge.weight || 0;
+          return Math.max(0.35, 1.1 * weight + 0.2);
+        })
+        .linkColor((edge) => {
+          const source = String(edge.source);
+          const target = String(edge.target);
+          if (state.selectedId === source || state.selectedId === target) {
+            return "rgba(31, 79, 153, 0.82)";
+          }
+          return `rgba(89, 103, 122, ${Math.max(0.12, Math.min(0.24, 0.06 + (edge.weight || 0) * 0.12))})`;
+        })
+        .nodeCanvasObject((node, ctx, globalScale) => {
+          paintNode(node, ctx, globalScale);
+        })
+        .nodeCanvasObjectMode(() => "after")
+        .onNodeClick((node) => {
+          state.selectedId = node ? node.id : null;
+          if (state.forceGraph && state.selectedId) {
+            state.forceGraph.centerAt(node.x, node.y, 250);
+          }
+          renderSelected();
+          renderViewHint(state.raw || null, state.nodes, state.edges);
+          scheduleDraw();
+          setStatus(state.selectedId ? `selected ${state.selectedId}` : "selection cleared");
+        })
+        .onNodeHover((node) => {
+          state.hoveredId = node ? node.id : null;
+          graphHint.textContent = node
+            ? `hover ${node.id} · degree ${node._deg || 0} · score ${num(node.score)}`
+            : `view ${state.selectedId || "none"}`;
+          scheduleDraw();
+        });
+
+      if (typeof state.forceGraph.enableZoomPanInteraction === "function") {
+        state.forceGraph.enableZoomPanInteraction(true);
+      }
+      state.forceGraph.nodeRelSize(2.3);
+
+    }
+
+    function paintNode(node, ctx, globalScale) {
+      const scale = Math.max(0.3, globalScale);
+      const baseRadius = Math.max(2.2, nodeRadius(node));
+      const radius = baseRadius / scale;
+      const selected = String(node.id) === String(state.selectedId);
+      const hit = node.isHit;
+      const hovered = state.hoveredId === node.id;
+      const shouldShowTitle = state.showLabels && hovered;
+      const labelAngle = node._labelAngle == null ? 0 : node._labelAngle;
+
+      if (selected) {
+        ctx.fillStyle = "#1f4f99";
+        ctx.shadowColor = "rgba(31, 79, 153, 0.3)";
+        ctx.shadowBlur = 4 / scale;
+      } else {
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.beginPath();
+      ctx.fillStyle = selected
+        ? "#edf3fb"
+        : hit
+          ? "#eaf0fa"
+          : node.candidate_score != null
+            ? "#f5efe1"
+            : "#fff";
+      ctx.strokeStyle = selected
+        ? "#1f4f99"
+        : hit
+          ? "#2c5e9d"
+          : node.candidate_score != null
+            ? "#8f6a23"
+            : "#6d7f95";
+      ctx.lineWidth = (selected ? 1.2 : 0.8) / scale;
+      ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+
+      if (!(state.isDense && !selected)) {
+        ctx.fill();
+      }
+      ctx.stroke();
+      if (selected) {
+        ctx.shadowBlur = 0;
+      }
+
+      if (shouldShowTitle) {
+        const tag = `${node.title || node.id}`.trim();
+        const text = tag.length > 36 ? `${tag.slice(0, 34)}…` : tag;
+        const labelOffset = radius + 18 + 4 / scale;
+        const tx = node.x + Math.cos(labelAngle) * labelOffset;
+        const ty = node.y + Math.sin(labelAngle) * labelOffset;
+        const align = Math.cos(labelAngle) >= 0 ? "left" : "right";
+        const labelX = tx + (align === "right" ? -4 / scale : 4 / scale);
+
+        ctx.fillStyle = "#25384d";
+        ctx.font = `${Math.max(9, 10 / scale)}px Geist, sans-serif`;
+        ctx.textAlign = align;
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, labelX, ty);
+      }
+    }
+
+    function createRng(seed) {
+      let x = seed >>> 0;
+      return () => {
+        x ^= x << 13;
+        x ^= x >>> 17;
+        x ^= x << 5;
+        return ((x >>> 0) / 0x1_0000_0000);
+      };
+    }
+
+    function sanitizeSnapshot(raw) {
+      const nodes = Array.isArray(raw?.nodes)
+        ? raw.nodes
+            .map((item, index) => {
+              const id = String(item?.id);
+              if (id === "null" || id === "undefined" || id === "" || id == null) return null;
+              return {
+                id,
+                slot: Number.isFinite(item?.slot) ? Number(item.slot) : index,
+                depth: Number.isFinite(item?.depth) ? Number(item.depth) : 0,
+                parent: item?.parent == null ? null : String(item.parent),
+                via_weight: Number(item?.via_weight),
+                path_weight: Number(item?.path_weight),
+                hit_rank: item?.hit_rank == null ? null : Number(item.hit_rank),
+                score: item?.score == null ? null : Number(item.score),
+                vector_score: item?.vector_score == null ? null : Number(item.vector_score),
+                graph_score: item?.graph_score == null ? null : Number(item.graph_score),
+                candidate_score: item?.candidate_score == null ? null : Number(item.candidate_score),
+                title: String(item?.title ?? `node ${id}`),
+                tags: Array.isArray(item?.tags) ? item.tags : [],
+                source: item?.source == null ? "" : String(item.source),
+                timestamp_ms: item?.timestamp_ms == null ? null : Number(item.timestamp_ms),
+                degree: 0,
+              };
+            })
+            .filter(Boolean)
+        : [];
+
+      const byId = new Map(nodes.map((node) => [node.id, node]));
+
+      const edgeSet = new Set();
+      const edges = Array.isArray(raw?.edges)
+        ? raw.edges
+            .map((item) => {
+              if (!item) return null;
+              const from = String(item.from);
+              const to = String(item.to);
+              if (!byId.has(from) || !byId.has(to) || from === to) return null;
+              const pair = `${from}\u2192${to}`;
+              if (edgeSet.has(pair)) return null;
+              edgeSet.add(pair);
+              return {
+                from,
+                to,
+                weight: Number(item.weight ?? 0),
+              };
+            })
+            .filter(Boolean)
+        : [];
+
+      for (const edge of edges) {
+        const from = byId.get(edge.from);
+        const to = byId.get(edge.to);
+        if (from) {
+          from.degree = (from.degree || 0) + 1;
+        }
+        if (to) {
+          to.degree = (to.degree || 0) + 1;
+        }
+      }
+
+      const hits = Array.isArray(raw?.hits)
+        ? raw.hits
+            .map((hit) => {
+              const id = String(hit?.id);
+              if (id === "null" || id === "undefined" || id === "") return null;
+              return {
+                rank: Number(hit?.rank ?? 0),
+                id,
+                score: Number(hit?.score ?? 0),
+                vector_score: hit?.vector_score == null ? null : Number(hit.vector_score),
+                graph_score: hit?.graph_score == null ? null : Number(hit.graph_score),
+                candidate_score: hit?.candidate_score == null ? null : Number(hit.candidate_score),
+                depth: Number(hit?.depth ?? 0),
+                parent: hit?.parent == null ? null : String(hit.parent),
+                title: String(hit?.title ?? `node ${id}`),
+                tags: Array.isArray(hit?.tags) ? hit.tags : [],
+                source: hit?.source == null ? "" : String(hit.source),
+                timestamp_ms: hit?.timestamp_ms == null ? null : Number(hit.timestamp_ms),
+              };
+            })
+            .filter(Boolean)
+            .sort((a, b) => (a.rank || Infinity) - (b.rank || Infinity))
+        : [];
+
+      const summary = raw?.summary && typeof raw.summary === "object" ? raw.summary : {};
+      const telemetry = raw?.telemetry && typeof raw.telemetry === "object" ? raw.telemetry : {};
+
+      return {
+        summary,
+        telemetry,
+        hits,
+        nodes,
+        edges,
+      };
+    }
+
+    // Force-graph driven viewport refresh.
+    function buildViewport(snapshot) {
+      if (!snapshot) return;
+      if (!hasForceGraph) {
+        setStatus("force-graph library failed to load");
+        return;
+      }
+
+      state.raw = snapshot;
+
+      const hitMap = new Map(snapshot.hits.map((hit) => [hit.id, hit]));
+      for (const node of snapshot.nodes) {
+        const hit = hitMap.get(node.id);
+        node.hit_rank = hit?.rank == null ? null : hit.rank;
+        node.score = hit?.score == null ? node.score : hit.score;
+        node.vector_score = hit?.vector_score == null ? node.vector_score : hit.vector_score;
+        node.graph_score = hit?.graph_score == null ? node.graph_score : hit.graph_score;
+        node.candidate_score = hit?.candidate_score == null ? node.candidate_score : hit.candidate_score;
+        node._importance = scoreNode(node, snapshot);
+      }
+
+      const sortedNodes = [...snapshot.nodes].sort((a, b) => b._importance - a._importance);
+      const selected = new Set();
+      const maxNodes = Math.max(1, Math.min(snapshot.nodes.length, state.nodeLimit));
+      const nodeIndex = new Map(snapshot.nodes.map((node) => [node.id, node]));
+
+      for (const hit of snapshot.hits) {
+        if (selected.size >= maxNodes) break;
+        if (hit.id != null) selected.add(hit.id);
+      }
+      for (const node of sortedNodes) {
+        if (selected.size >= maxNodes) break;
+        selected.add(node.id);
+      }
+
+      const edgeCandidates = [...snapshot.edges]
+        .filter((edge) => edge.weight >= state.minEdgeWeight)
+        .sort((a, b) => b.weight - a.weight);
+      const visibleEdges = [];
+      const adjacency = new Map();
+
+      for (const edge of edgeCandidates) {
+        if (visibleEdges.length >= state.edgeLimit) {
+          break;
+        }
+
+        const fromNode = nodeIndex.get(edge.from);
+        const toNode = nodeIndex.get(edge.to);
+        if (!fromNode || !toNode) continue;
+
+        const fromSelected = selected.has(edge.from);
+        const toSelected = selected.has(edge.to);
+        if (!fromSelected && !toSelected) {
+          if (selected.size >= maxNodes) continue;
+          selected.add(edge.from);
+          if (selected.size < maxNodes) selected.add(edge.to);
+        } else if (!fromSelected || !toSelected) {
+          if (selected.size < maxNodes) selected.add(fromSelected ? edge.to : edge.from);
+        }
+
+        if (selected.has(edge.from) && selected.has(edge.to)) {
+          visibleEdges.push(edge);
+          const fromAdj = adjacency.get(edge.from) || new Set();
+          const toAdj = adjacency.get(edge.to) || new Set();
+          fromAdj.add(edge.to);
+          toAdj.add(edge.from);
+          adjacency.set(edge.from, fromAdj);
+          adjacency.set(edge.to, toAdj);
+        }
+      }
+
+      const visibleNodes = snapshot.nodes
+        .filter((node) => selected.has(node.id))
+        .sort((a, b) => b._importance - a._importance);
+
+      for (const node of visibleNodes) {
+        node.isHit = node.hit_rank != null;
+        node._deg = adjacency.get(node.id)?.size || node.degree || 0;
+      }
+
+      const isDense = visibleNodes.length > tuning.labelDensityCap;
+      const displayEdges = [...visibleEdges];
+      const stride = Math.max(1, Math.ceil(displayEdges.length / tuning.edgeRenderCap));
+      const visibleLinks = stride === 1 ? displayEdges : displayEdges.filter((_, index) => index % stride === 0);
+
+      const baseLayout = visibleNodes.length > 2_500 ? visibleNodes : buildLayout(visibleNodes);
+      state.nodes = baseLayout;
+      state.edges = visibleEdges;
+      state.renderEdges = visibleLinks;
+      state.edgeStride = stride;
+      state.edgeRenderCount = visibleLinks.length;
+      state.nodeById = new Map(state.nodes.map((node) => [node.id, node]));
+      state.isDense = isDense;
+
+      const labelAngle = -1.4;
+      for (const node of state.nodes) {
+        node._labelAngle = labelAngle;
+      }
+
+      if (!state.selectedId || !state.nodeById.has(state.selectedId)) {
+        state.selectedId = snapshot.hits[0]?.id ?? state.nodes[0]?.id ?? null;
+      }
+
+      if (!state.forceGraph) {
+        updateGraphBounds();
+        initForceGraph();
+      }
+      if (!state.forceGraph) {
+        setStatus("force-graph did not initialize");
+        return;
+      }
+
+      const forceLinks = visibleLinks.map((edge) => ({
+        source: edge.from,
+        target: edge.to,
+        weight: edge.weight,
+      }));
+      state.forceData = { nodes: state.nodes, links: forceLinks };
+      state.forceGraph.graphData(state.forceData);
+
+      if (!state.ready) {
+        state.forceGraph.zoomToFit(500, 48);
+      }
+
+      renderSummary(snapshot, state.nodes, state.edges);
+      renderHits(snapshot.hits);
+      renderSelected();
+      renderViewHint(snapshot, state.nodes, state.edges);
+      setStatus(
+        `rendered ${state.nodes.length}/${snapshot.nodes.length} nodes, ` +
+          `${state.edges.length}/${snapshot.edges.length} edges (drawn ${state.edgeRenderCount})`,
+      );
+      state.ready = true;
+      scheduleDraw();
+    }
+
+    function scoreNode(node, snapshot) {
+      let score = 0;
+      if (node.hit_rank != null && Number.isFinite(node.hit_rank)) {
+        score += 10_000 - node.hit_rank * 70;
+      }
+
+      if (Number.isFinite(node.score)) {
+        score += node.score * 1_000;
+      }
+
+      if (Number.isFinite(node.candidate_score)) {
+        score += node.candidate_score * 700;
+      }
+
+      if (Number.isFinite(node.graph_score)) {
+        score += node.graph_score * 500;
+      }
+
+      score += (node.degree || 0) * 1.6;
+      score += Number.isFinite(node.path_weight) ? node.path_weight * 20 : 0;
+      score -= node.depth * 0.2;
+      return score;
+    }
+
+    function buildLayout(nodes) {
+      if (!nodes.length) return [];
+      const width = state.layoutBounds.width;
+      const height = state.layoutBounds.height;
+      const cx = width * 0.5;
+      const cy = height * 0.5;
+      const maxRadius = Math.min(width, height) * 0.42;
+      const depths = new Map();
+      for (const node of nodes) {
+        const d = Number.isFinite(node.depth) ? node.depth : 0;
+        if (!depths.has(d)) depths.set(d, []);
+        depths.get(d).push(node);
+      }
+
+      const orderedDepths = [...depths.keys()].sort((a, b) => a - b);
+      const layerCount = Math.max(1, orderedDepths.length);
+      const phi = Math.PI * (Math.sqrt(5) - 1);
+
+      for (let i = 0; i < orderedDepths.length; i++) {
+        const depth = orderedDepths[i];
+        const group = depths.get(depth);
+        const layerRadius = Math.max(20, (maxRadius * (i + 1)) / (layerCount + 1));
+        const ringThickness = Math.max(14, maxRadius * 0.08);
+        for (let j = 0; j < group.length; j += 1) {
+          const n = group[j];
+          const u = group.length <= 1 ? 0.5 : (j + 0.5) / group.length;
+          const radius = Math.min(maxRadius, Math.max(10, layerRadius + (Math.sqrt(u) - 0.5) * ringThickness));
+          const angle = (j + i * 2.1) * phi + u * 6.5;
+          n.x = cx + Math.cos(angle) * radius;
+          n.y = cy + Math.sin(angle) * radius;
+        }
+      }
+
+      return jitterLayout(nodes, width, height);
+    }
+
+    function jitterLayout(nodes, width, height) {
+      const iterations = Math.min(6, Math.max(1, Math.round(Math.sqrt(nodes.length / 500))));
+      if (nodes.length > 2500) return nodes;
+
+      const radius = Math.max(9, Math.min(8, 24 - nodes.length / 1200));
+      for (let step = 0; step < iterations; step += 1) {
+        const cell = Math.max(28, radius * 5);
+        const grid = new Map();
+        for (let i = 0; i < nodes.length; i += 1) {
+          const node = nodes[i];
+          const gx = Math.floor(node.x / cell);
+          const gy = Math.floor(node.y / cell);
+          const key = `${gx},${gy}`;
+          if (!grid.has(key)) grid.set(key, []);
+          grid.get(key).push(i);
+        }
+
+        for (let i = 0; i < nodes.length; i += 1) {
+          const a = nodes[i];
+          const ax = Math.floor(a.x / cell);
+          const ay = Math.floor(a.y / cell);
+          for (let sx = -1; sx <= 1; sx += 1) {
+            for (let sy = -1; sy <= 1; sy += 1) {
+              const list = grid.get(`${ax + sx},${ay + sy}`);
+              if (!list) continue;
+              for (const j of list) {
+                if (j <= i) continue;
+                const b = nodes[j];
+                const dx = a.x - b.x;
+                const dy = a.y - b.y;
+                const dist2 = dx * dx + dy * dy;
+                const minDist = radius * 1.25;
+                if (dist2 <= 0 || dist2 >= minDist * minDist) continue;
+                const dist = Math.sqrt(dist2) || 1;
+                const overlap = (minDist - dist) * 0.5;
+                const fx = (dx / dist) * overlap;
+                const fy = (dy / dist) * overlap;
+                a.x += fx;
+                a.y += fy;
+                b.x -= fx;
+                b.y -= fy;
+              }
+            }
+          }
+        }
+      }
+
+      for (const node of nodes) {
+        node.x = Math.min(width - 12, Math.max(12, node.x));
+        node.y = Math.min(height - 12, Math.max(12, node.y));
+      }
+      return nodes;
+    }
+
+    function renderSummary(snapshot, visibleNodes, visibleEdges) {
+      const summary = snapshot.summary || {};
+      const telemetry = snapshot.telemetry || {};
+      const rows = [
+        ["nodes", visibleNodes.length],
+        ["edges", visibleEdges.length],
+        ["selected_slots", summary.selected_slots ?? "-"],
+        ["graph_cache_hit", summary.graph_cache_hit ? "hit" : "miss"],
+        ["combined_hit", summary.combined_cache_hit ? "hit" : "miss"],
+        ["selectivity", pct(summary.selectivity)],
+        ["hits", summary.hit_count ?? snapshot.hits.length],
+        ["trace nodes", summary.trace_node_count ?? "-"],
+        ["trace edges", summary.trace_edge_count ?? "-"],
+        ["total_ms", nsToMs(telemetry.total_ns)],
+      ];
+      metricsEl.innerHTML = rows
+        .map(([label, value]) => {
+          return `<article class="metric"><b>${esc(value)}</b><span>${esc(label)}</span></article>`;
+        })
+        .join("");
+    }
+
+    function renderViewHint(snapshot, visibleNodes, visibleEdges) {
+      const density = visibleNodes.length ? (visibleEdges.length / visibleNodes.length).toFixed(2) : "-";
+      const selected = state.selectedId == null ? "none" : state.selectedId;
+      const topDegree = [...visibleNodes].sort((a, b) => (b._deg || 0) - (a._deg || 0))[0];
+      const topNode = topDegree ? topDegree.id : "-";
+      const edgeStride = state.edgeStride || 1;
+      viewHintEl.innerHTML = `
+        <article class="item">
+          <div class="name">Visible budget</div>
+          <div class="meta">
+            <span>nodes ${visibleNodes.length}</span>
+            <span>edges ${visibleEdges.length}</span>
+            <span>edge density ${density}</span>
+            <span>node cap ${state.nodeLimit}</span>
+            <span>edge cap ${state.edgeLimit}</span>
+            <span>min w ${state.minEdgeWeight.toFixed(2)}</span>
+            <span>render stride ${edgeStride}x</span>
+            <span>labels ${state.showLabels ? "hover only" : "off"}</span>
+          </div>
+        </article>
+        <article class="item">
+          <div class="name">Selection</div>
+          <div class="meta">
+            <span>selected ${selected}</span>
+            <span>max degree ${topNode}</span>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderHits(hits) {
+      const sorted = [...hits].sort((a, b) => (a.rank || 0) - (b.rank || 0)).slice(0, 140);
+      if (!sorted.length) {
+        hitsEl.innerHTML = '<div class="empty">No hits</div>';
+        return;
+      }
+      hitsEl.innerHTML = sorted
+        .map((hit) => {
+          const active = state.selectedId === hit.id ? " active" : "";
+          return `
+            <article class="item${active}" data-hit-id="${esc(hit.id)}">
+              <div class="head">
+                <span class="pill">#${esc(hit.rank || "-")}</span>
+                <span class="name">${esc(hit.title || hit.id)}</span>
+              </div>
+              <div class="meta">
+                <span>id ${esc(hit.id)}</span>
+                <span>depth ${esc(hit.depth)}</span>
+                <span>${esc(hit.source || "source -")}</span>
+              </div>
+              <div class="scores">
+                <span>score ${num(hit.score)}</span>
+                <span>vec ${num(hit.vector_score)}</span>
+                <span>graph ${num(hit.graph_score)}</span>
+                <span>cand ${num(hit.candidate_score)}</span>
+              </div>
+            </article>
+          `;
+        })
+        .join("");
+
+      hitsEl.querySelectorAll("[data-hit-id]").forEach((el) => {
+        el.addEventListener("click", () => {
+          const id = el.dataset.hitId;
+          state.selectedId = id;
+          const node = state.nodeById.get(id);
+          if (state.forceGraph && node) {
+            state.forceGraph.centerAt(node.x, node.y, 250);
+            state.forceGraph.zoom(1.2, 250);
+          }
+          renderSelected();
+          renderViewHint(state.raw, state.nodes, state.edges);
+          scheduleDraw();
+        });
+      });
+    }
+
+    function renderSelected() {
+      if (!state.selectedId) {
+        selectedEl.innerHTML = '<div class="empty">No node selected</div>';
+        return;
+      }
+      const node = state.nodes.find((n) => n.id === state.selectedId);
+      if (!node) {
+        selectedEl.innerHTML = '<div class="empty">Selected node not visible</div>';
+        return;
+      }
+      const tags = (node.tags || []).join(", ") || "-";
+      selectedEl.innerHTML = `
+        <article class="item active">
+          <div class="head">
+            <span class="pill">${node.hit_rank == null ? `d${node.depth}` : `#${node.hit_rank}`}</span>
+            <span class="name">${esc(node.title || node.id)}</span>
+          </div>
+          <div class="meta">
+            <span>id ${esc(node.id)}</span>
+            <span>slot ${esc(node.slot)}</span>
+            <span>parent ${node.parent == null ? "-" : esc(node.parent)}</span>
+            <span>degree ${esc(node._deg || 0)}</span>
+            <span>tags ${esc(tags)}</span>
+          </div>
+          <div class="scores">
+            <span>score ${num(node.score)}</span>
+            <span>vec ${num(node.vector_score)}</span>
+            <span>graph ${num(node.graph_score)}</span>
+            <span>cand ${num(node.candidate_score)}</span>
+          </div>
+        </article>
+      `;
+    }
+
+    function nodeRadius(node) {
+      const base = 3.2;
+      const degree = Math.sqrt(node._deg || 1) * 0.35;
+      const boost = node.isHit ? 1.2 : 0;
+      return Math.max(2, base + degree + boost);
+    }
+
+    function applyFromRaw(raw) {
+      if (!raw || typeof raw !== "object") {
+        setStatus("invalid snapshot: expected JSON object");
+        return;
+      }
+
+      const snapshot = sanitizeSnapshot(raw);
+      if (!snapshot.nodes.length) {
+        setStatus("snapshot has no nodes");
+        state.ready = false;
+        scheduleDraw();
+        return;
+      }
+
+      buildViewport(snapshot);
+    }
+
+    function parseAndApply() {
+      try {
+        const raw = JSON.parse(jsonInput.value || "{}");
+        state.nodeLimit = Number(nodeLimitEl.value);
+        state.edgeLimit = Number(edgeLimitEl.value);
+        state.minEdgeWeight = Number(minEdgeWeightEl.value);
+        state.showLabels = showLabelsEl.checked;
+        applyFromRaw(raw);
+      } catch (err) {
+        setStatus(`invalid JSON: ${err.message || err}`);
+      }
+    }
+
+    function syncControls() {
+      state.nodeLimit = Number(nodeLimitEl.value);
+      state.edgeLimit = Number(edgeLimitEl.value);
+      state.minEdgeWeight = Number(minEdgeWeightEl.value);
+      nodeLimitValue.textContent = String(state.nodeLimit);
+      edgeLimitValue.textContent = String(state.edgeLimit);
+      minEdgeWeightValue.textContent = state.minEdgeWeight.toFixed(2);
+      if (state.raw) {
+        buildViewport(state.raw);
+      }
+    }
+
+    function fitAfterResize() {
+      updateGraphBounds();
+      if (!state.raw || !state.forceGraph) {
+        return;
+      }
+      buildViewport(state.raw);
+    }
+
+    function compactCurrent() {
+      if (!state.raw) {
+        setStatus("no snapshot");
+        return;
+      }
+      jsonInput.value = JSON.stringify(state.raw);
+      setStatus("compact JSON written to editor");
+    }
+
+    function buildDefaultSnapshot() {
+      return buildStressSnapshot({
+        nodeCount: 2_000,
+        avgDegree: 7,
+        hitCount: 160,
+        seed: 0xbad_c0fe,
+      });
+    }
+
+    function buildStressSnapshot({
+      nodeCount = 24_000,
+      avgDegree = 7,
+      hitCount = 260,
+      seed = 0xBADC0FFE,
+    } = {}) {
+      const safeNodeCount = Math.max(1_000, Math.min(250_000, Math.floor(nodeCount)));
+      const safeAvgDegree = Math.max(1, Math.min(16, Math.floor(avgDegree)));
+      const safeHitCount = Math.max(1, Math.min(safeNodeCount, Math.floor(hitCount)));
+      const sources = ["kuku.mom", "liner", "planner", "archive", "search", "graph"];
+      const tags = [
+        "query graph",
+        "search ranking",
+        "vector space",
+        "memory slot",
+        "product index",
+        "paper chunk",
+        "candidate pool",
+        "policy trace",
+        "context block",
+        "rerank layer",
+        "metadata tag",
+      ];
+      const nodeKinds = [
+        "query cluster",
+        "context block",
+        "graph segment",
+        "candidate lane",
+        "semantic lane",
+        "vector route",
+        "ranking shard",
+        "trace bucket",
+      ];
+      const nodeDomain = [
+        "search pipeline",
+        "embedding manifold",
+        "memory frontier",
+        "rerank window",
+        "metadata lane",
+        "candidate queue",
+        "policy bridge",
+        "trace corridor",
+      ];
+      const nodeAdjectives = [
+        "primary",
+        "secondary",
+        "latent",
+        "hybrid",
+        "indexed",
+        "active",
+        "cached",
+        "temporal",
+      ];
+      const rand = createRng(seed);
+      const nodes = [];
+      const edges = [];
+      const edgeSet = new Set();
+
+      for (let i = 0; i < safeNodeCount; i += 1) {
+        const source = sources[Math.floor(rand() * sources.length)];
+        const tagCount = 2 + Math.floor(rand() * 2);
+        const nodeTags = new Set();
+        while (nodeTags.size < tagCount) {
+          nodeTags.add(tags[Math.floor(rand() * tags.length)]);
+        }
+        const nodeKind = nodeKinds[Math.floor(rand() * nodeKinds.length)];
+        const nodeAdj = nodeAdjectives[Math.floor(rand() * nodeAdjectives.length)];
+        const nodeDomainTerm = nodeDomain[Math.floor(rand() * nodeDomain.length)];
+        const primaryTag = [...nodeTags][0];
+        const slot = i % 200;
+        const depth = Math.min(12, Math.floor(Math.log2(i + 1)));
+        nodes.push({
+          id: String(i + 1),
+          slot,
+          depth,
+          parent: i < 8 ? null : String(Math.floor(rand() * (i + 1))),
+          via_weight: +(0.45 + rand() * 0.55).toFixed(4),
+          path_weight: +(0.5 + rand() * 0.5).toFixed(4),
+          hit_rank: null,
+          score: null,
+          vector_score: null,
+          graph_score: null,
+          candidate_score: null,
+          title: `${nodeAdj} ${nodeKind} in ${nodeDomainTerm} for ${primaryTag} node #${String(i + 1).padStart(4, "0")}`,
+          tags: [...nodeTags],
+          source,
+          timestamp_ms: 1_700_000_000_000 + i * 997,
+        });
+      }
+
+      for (let i = 0; i < safeNodeCount; i += 1) {
+        const from = String(i + 1);
+        const targets = safeAvgDegree + Math.floor(rand() * 3);
+        for (let t = 0; t < targets; t += 1) {
+          const toIndex = Math.floor(rand() * safeNodeCount);
+          if (toIndex === i) continue;
+          const to = String(toIndex + 1);
+          const pair = `${from}->${to}`;
+          if (edgeSet.has(pair)) continue;
+          edgeSet.add(pair);
+          edges.push({
+            from,
+            to,
+            weight: +(0.05 + rand() * 0.95).toFixed(4),
+          });
+        }
+      }
+
+      const hits = [];
+      for (let rank = 1; rank <= safeHitCount; rank += 1) {
+        const hitIndex = (rank * 73) % safeNodeCount;
+        const id = String(hitIndex + 1);
+        const score = 0.99 - rank * 0.0025;
+        const node = nodes[hitIndex];
+        hits.push({
+          rank,
+          id,
+          score,
+          vector_score: +(score * 0.45).toFixed(6),
+          graph_score: +(score * 0.55).toFixed(6),
+          candidate_score: +(score * 0.22).toFixed(6),
+          depth: node?.depth || 0,
+          parent: node?.parent || null,
+          title: node?.title || `id ${id}`,
+          tags: node?.tags || [],
+          source: node?.source,
+          timestamp_ms: node?.timestamp_ms || null,
+        });
+      }
+
+      return {
+        summary: {
+          total_slots: 120,
+          graph_slots: 104,
+          metadata_slots: 104,
+          candidate_input_ids: 104,
+          candidate_slots: 64,
+          candidate_missing_ids: 0,
+          candidate_duplicate_ids: 0,
+          selected_slots: 24,
+          active_blocks: 4,
+          graph_cache_hit: false,
+          combined_cache_hit: false,
+          selectivity: 0.82,
+          graph_selectivity: 0.8,
+          metadata_selectivity: 0.7,
+          candidate_selectivity: 0.63,
+          active_block_selectivity: 1,
+          prefetch_k: 64,
+          hit_count: hits.length,
+          trace_node_count: nodes.length,
+          trace_edge_count: edges.length,
+        },
+        telemetry: {
+          view_build_ns: 1_100_000,
+          vector_search_ns: 4_100_000,
+          rerank_ns: 4_000_000,
+          trace_build_ns: 8_300_000,
+          total_ns: 17_500_000,
+          blocks_skipped_by_mask: 0,
+        },
+        hits,
+        nodes,
+        edges,
+      };
+    }
+
+    renderButton.addEventListener("click", parseAndApply);
+    applyJson.addEventListener("click", parseAndApply);
+    compactJson.addEventListener("click", compactCurrent);
+
+    loadSample.addEventListener("click", () => {
+      setStatus("building default sample...");
+      const snapshot = sampleSnapshot;
+      jsonInput.value = JSON.stringify(snapshot);
+      parseAndApply();
+    });
+    loadStress.addEventListener("click", () => {
+      setStatus("building stress sample...");
+      const snapshot = buildStressSnapshot({
+        nodeCount: 24_000,
+        avgDegree: 7,
+        hitCount: 260,
+        seed: 0xbad_c0fe,
+      });
+      jsonInput.value = JSON.stringify(snapshot);
+      parseAndApply();
+    });
+
+    nodeLimitEl.addEventListener("input", () => {
+      syncControls();
+    });
+    edgeLimitEl.addEventListener("input", () => {
+      syncControls();
+    });
+    minEdgeWeightEl.addEventListener("input", () => {
+      syncControls();
+    });
+    showLabelsEl.addEventListener("change", () => {
+      state.showLabels = showLabelsEl.checked;
+      if (state.raw) {
+        scheduleDraw();
+      }
+    });
+
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        jsonInput.value = text;
+        parseAndApply();
+      } catch {
+        setStatus(`failed to read ${file.name}`);
+      }
+    });
+
+    zoomReset.addEventListener("click", () => {
+      if (!state.forceGraph) return;
+      state.forceGraph.zoomToFit(500, 50);
+      state.hoveredId = null;
+      renderViewHint(state.raw, state.nodes, state.edges);
+      setStatus("view reset");
+    });
+
+    window.addEventListener("resize", fitAfterResize);
+
+    function init() {
+      nodeLimitValue.textContent = nodeLimitEl.value;
+      edgeLimitValue.textContent = edgeLimitEl.value;
+      minEdgeWeightValue.textContent = Number(minEdgeWeightEl.value).toFixed(2);
+      showLabelsEl.checked = true;
+      jsonInput.value = JSON.stringify(sampleSnapshot);
+      state.nodeLimit = Number(nodeLimitEl.value);
+      state.edgeLimit = Number(edgeLimitEl.value);
+      state.minEdgeWeight = Number(minEdgeWeightEl.value);
+      state.showLabels = showLabelsEl.checked;
+      updateGraphBounds();
+      parseAndApply();
+    }
+
+    init();
+  </script>
+</body>
+</html>

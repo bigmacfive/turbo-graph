@@ -1,0 +1,65 @@
+name: Bug report
+description: Report a reproducible correctness, packaging, or API problem.
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to write this down. Clear reproduction steps are the fastest path to a useful fix.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong? What did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Minimal code, command, or dataset shape that reproduces the issue.
+      placeholder: |
+        1. Install ...
+        2. Run ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Affected surface
+      multiple: true
+      options:
+        - Rust TurboQuantIndex / IdMapIndex
+        - Rust GraphMemoryIndex
+        - Python TurboQuantIndex / IdMapIndex
+        - Python GraphMemoryIndex
+        - Framework integration
+        - Packaging / install
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, CPU architecture, Python/Rust versions, install method, and package versions.
+      placeholder: |
+        OS:
+        CPU:
+        Python:
+        Rust:
+        turbo-graph:
+        Install command:
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or traceback
+      render: text
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context

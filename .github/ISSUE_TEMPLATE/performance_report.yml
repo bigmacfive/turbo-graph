@@ -1,0 +1,66 @@
+name: Performance report
+description: Report a speed, recall, memory, cache, or benchmark issue.
+title: "[perf]: "
+labels: ["performance"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Performance reports are most useful when they separate the shared TurboQuant core from the graph/metadata layer.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What regressed or what workload is slower than expected?
+    validations:
+      required: true
+  - type: dropdown
+    id: path
+    attributes:
+      label: Query path
+      options:
+        - Plain TurboQuant search
+        - IdMap allowlist search
+        - GraphMemory graph view
+        - GraphMemory metadata/candidate view
+        - GraphMemory rerank/explain
+        - Python framework integration
+    validations:
+      required: true
+  - type: textarea
+    id: workload
+    attributes:
+      label: Workload
+      description: Dataset size, dimension, bit width, query count, k, filter selectivity, graph shape, and batch size.
+      placeholder: |
+        n_vectors:
+        dim:
+        bit_width:
+        n_queries:
+        k:
+        selectivity:
+        graph degree / hops:
+        batch size:
+    validations:
+      required: true
+  - type: textarea
+    id: numbers
+    attributes:
+      label: Numbers
+      description: Before/after, turbovec comparison, graph_view_bench CSV summary, or profiler output.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, CPU, SIMD target, thread count, Python/Rust versions, BLAS provider.
+    validations:
+      required: true
+  - type: textarea
+    id: commands
+    attributes:
+      label: Commands
+      description: Commands needed to reproduce the measurement.
+      render: shell

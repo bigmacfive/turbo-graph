@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 490" width="820" height="490">
+<style>
+  .title { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+  .subtitle { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+  .panel { font: 700 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+  .label { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+  .secondary { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+  .tick { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #64748b; }
+  .value { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+  .value-accent { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #4338ca; }
+  .axis { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #334155; }
+  .legend { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+</style>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#525252"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="410" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#171717">Migration decision flow</text>
+<rect x="280.0" y="52" width="260" height="40" rx="6" fill="#fafafa" stroke="#525252" stroke-width="1.2"/>
+<text x="410.0" y="76.0" text-anchor="middle" font-size="11" font-weight="600" fill="#171717">Need ANN vector search?</text>
+<line x1="410.0" y1="94" x2="410.0" y2="112" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<polygon points="410.0,120.0 560.0,148 410.0,176.0 260.0,148" fill="#fafafa" stroke="#525252" stroke-width="1.2"/><text x="410" y="152" text-anchor="middle" font-size="10" fill="#171717">Graph / tags / time constraints?</text>
+<line x1="410.0" y1="180" x2="410.0" y2="208" stroke="#525252" stroke-width="1.5"/>
+<line x1="210" y1="208" x2="410.0" y2="208" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<line x1="410.0" y1="208" x2="610" y2="208" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="238" y="200" font-size="10" fill="#737373">no</text>
+<text x="574" y="200" font-size="10" fill="#737373">yes</text>
+<line x1="210" y1="208" x2="210" y2="226" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<line x1="610" y1="208" x2="610" y2="226" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="110" y="226" width="200" height="48" rx="6" fill="#635bff" stroke="#171717" stroke-width="1.2"/>
+<text x="210.0" y="246.0" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">Stay on turbovec</text>
+<text x="210.0" y="264.0" text-anchor="middle" font-size="9" fill="#ecfdf5">pure ANN + allowlist/mask</text>
+<rect x="510" y="226" width="200" height="48" rx="6" fill="#15803d" stroke="#15803d" stroke-width="1.2"/>
+<text x="610.0" y="246.0" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">Adopt turbo-graph</text>
+<text x="610.0" y="264.0" text-anchor="middle" font-size="9" fill="#ecfdf5">GraphMemoryIndex layer</text>
+<line x1="610" y1="274" x2="610" y2="284" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<polygon points="610,284.0 735.0,310 610,336.0 485.0,310" fill="#fafafa" stroke="#525252" stroke-width="1.2"/><text x="610" y="314" text-anchor="middle" font-size="10" fill="#171717">Need cache, rerank, or telemetry?</text>
+<line x1="610" y1="342" x2="610" y2="358" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="510" y="364" width="200" height="44" rx="6" fill="#15803d" stroke="#15803d" stroke-width="1.2"/>
+<text x="610.0" y="382.0" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">Full migration</text>
+<text x="610.0" y="400.0" text-anchor="middle" font-size="9" fill="#ecfdf5">graph index + cache + rerank</text>
+<rect x="40" y="424" width="740" height="58" rx="8" fill="#fafafa" stroke="#e5e5e5"/>
+<text x="60" y="446" font-size="10" fill="#525252">Checklist: graph edges, tag/source/time metadata, candidate assembly, cache, rerank, telemetry</text>
+<text x="60" y="464" font-size="10" fill="#525252">Shared TurboQuant core is identical; migration adds the graph memory layer on top.</text>
+</svg>

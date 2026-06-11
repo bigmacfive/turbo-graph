@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" width="1000" height="340">
+<style>
+  .title { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+  .subtitle { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+  .panel { font: 700 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+  .label { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+  .secondary { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+  .tick { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #64748b; }
+  .value { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+  .value-accent { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #4338ca; }
+  .axis { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #334155; }
+  .legend { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+</style>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#525252"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="500" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#171717">Query path: turbovec vs turbo-graph</text>
+<text x="250" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#171717">turbovec</text>
+<rect x="76.0" y="78" width="78" height="36" rx="6" fill="#635bff" stroke="#171717" stroke-width="1.2"/>
+<text x="115.0" y="100.0" text-anchor="middle" font-size="10" font-weight="600" fill="#ffffff">query</text>
+<line x1="156.0" y1="96.0" x2="164.0" y2="96.0" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="166.0" y="78" width="78" height="36" rx="6" fill="#635bff" stroke="#171717" stroke-width="1.2"/>
+<text x="205.0" y="100.0" text-anchor="middle" font-size="10" font-weight="600" fill="#ffffff">allowlist</text>
+<line x1="246.0" y1="96.0" x2="254.0" y2="96.0" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="256.0" y="78" width="78" height="36" rx="6" fill="#635bff" stroke="#171717" stroke-width="1.2"/>
+<text x="295.0" y="100.0" text-anchor="middle" font-size="10" font-weight="600" fill="#ffffff">SIMD scan</text>
+<line x1="336.0" y1="96.0" x2="344.0" y2="96.0" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="346.0" y="78" width="78" height="36" rx="6" fill="#635bff" stroke="#171717" stroke-width="1.2"/>
+<text x="385.0" y="100.0" text-anchor="middle" font-size="10" font-weight="600" fill="#ffffff">top-k</text>
+<rect x="50" y="142" width="400" height="44" rx="6" fill="#fafafa" stroke="#e5e5e5"/>
+<text x="250" y="168" text-anchor="middle" font-size="10" fill="#525252">Filter inside kernel; optional post-filter on metadata</text>
+<text x="745" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#15803d">turbo-graph</text>
+<rect x="526.0" y="78" width="78" height="36" rx="6" fill="#15803d" stroke="#15803d" stroke-width="1.2"/>
+<text x="565.0" y="100.0" text-anchor="middle" font-size="10" font-weight="600" fill="#ffffff">query</text>
+<line x1="606.0" y1="96.0" x2="614.0" y2="96.0" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="616.0" y="78" width="78" height="36" rx="6" fill="#15803d" stroke="#15803d" stroke-width="1.2"/>
+<text x="655.0" y="100.0" text-anchor="middle" font-size="10" font-weight="600" fill="#ffffff">graph view</text>
+<line x1="696.0" y1="96.0" x2="704.0" y2="96.0" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="706.0" y="78" width="78" height="36" rx="6" fill="#15803d" stroke="#15803d" stroke-width="1.2"/>
+<text x="745.0" y="100.0" text-anchor="middle" font-size="10" font-weight="600" fill="#ffffff">metadata</text>
+<line x1="786.0" y1="96.0" x2="794.0" y2="96.0" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="796.0" y="78" width="78" height="36" rx="6" fill="#15803d" stroke="#15803d" stroke-width="1.2"/>
+<text x="835.0" y="100.0" text-anchor="middle" font-size="10" font-weight="600" fill="#ffffff">candidates</text>
+<line x1="876.0" y1="96.0" x2="884.0" y2="96.0" stroke="#525252" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="886.0" y="78" width="78" height="36" rx="6" fill="#15803d" stroke="#15803d" stroke-width="1.2"/>
+<text x="925.0" y="100.0" text-anchor="middle" font-size="10" font-weight="600" fill="#ffffff">rerank</text>
+<rect x="540" y="142" width="410" height="44" rx="6" fill="#fafafa" stroke="#e5e5e5"/>
+<text x="745" y="168" text-anchor="middle" font-size="10" fill="#525252">Assemble graph + tags + time window; cache hot views</text>
+</svg>
