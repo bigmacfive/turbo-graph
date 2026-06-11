@@ -1,38 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 520" width="1040" height="520">
 <style>
-  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-  .title { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
-  .subtitle { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #8d8d96; }
-  .panel { font: 700 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
-  .label { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f5f5f7; }
-  .secondary { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #9c9ca6; }
-  .tick { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #777782; }
-  .value { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f5f5f7; }
-  .value-accent { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d8d0ff; }
-  .axis { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d7d7df; }
-  .legend { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f5f5f7; }
+  text { font-family: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  .title { font: 800 30px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
+  .subtitle { font: 600 17px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d7d7d9; }
+  .panel { font: 700 18px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; letter-spacing: 1.2px; }
+  .label { font: 700 16px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f2f2f2; }
+  .secondary { font: 500 14px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #a9a9ad; }
+  .tick { font: 500 13px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #85858b; }
+  .value { font: 700 14px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f2f2f2; }
+  .value-accent { font: 800 14px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ff6a1f; }
+  .axis { font: 700 15px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d9d9dc; }
+  .legend { font: 700 14px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f2f2f2; }
+  .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
 </style>
-<rect width="100%" height="100%" fill="#000000" />
-<text x="360" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">Recall@1 delta: TurboQuant vs FAISS IndexPQ (pp)</text>
-<text x="360" y="46" text-anchor="middle" font-size="10" fill="#8d8d96">Shared turbo-graph / turbovec core | positive = TurboQuant higher recall</text>
-<line x1="405.0" y1="50" x2="405.0" y2="280" stroke="#4b4b56" stroke-width="1"/>
-<rect x="405.0" y="58.6" width="220.0" height="21.1" rx="3" fill="#72d7ff"/>
-<text x="120" y="73" text-anchor="end" font-size="11" fill="#d7d7df">1536 2-bit</text>
-<text x="631.0" y="73" text-anchor="start" font-size="10" font-weight="600" fill="#ffffff">+1.90 pp</text>
-<rect x="405.0" y="97.0" width="92.6" height="21.1" rx="3" fill="#72d7ff"/>
-<text x="120" y="112" text-anchor="end" font-size="11" fill="#d7d7df">1536 4-bit</text>
-<text x="503.6" y="112" text-anchor="start" font-size="10" font-weight="600" fill="#ffffff">+0.80 pp</text>
-<rect x="405.0" y="135.3" width="196.8" height="21.1" rx="3" fill="#72d7ff"/>
-<text x="120" y="150" text-anchor="end" font-size="11" fill="#d7d7df">3072 2-bit</text>
-<text x="607.8" y="150" text-anchor="start" font-size="10" font-weight="600" fill="#ffffff">+1.70 pp</text>
-<rect x="405.0" y="173.6" width="23.2" height="21.1" rx="3" fill="#72d7ff"/>
-<text x="120" y="188" text-anchor="end" font-size="11" fill="#d7d7df">3072 4-bit</text>
-<text x="434.2" y="188" text-anchor="start" font-size="10" font-weight="600" fill="#ffffff">+0.20 pp</text>
-<rect x="398.1" y="212.0" width="6.9" height="21.1" rx="3" fill="#6f717c"/>
-<text x="120" y="226" text-anchor="end" font-size="11" fill="#d7d7df">GloVe 2-bit</text>
-<text x="392.1" y="226" text-anchor="end" font-size="10" font-weight="600" fill="#ffffff">-0.06 pp</text>
-<rect x="405.0" y="250.3" width="101.9" height="21.1" rx="3" fill="#72d7ff"/>
-<text x="120" y="265" text-anchor="end" font-size="11" fill="#d7d7df">GloVe 4-bit</text>
-<text x="512.9" y="265" text-anchor="start" font-size="10" font-weight="600" fill="#ffffff">+0.88 pp</text>
-<text x="405" y="308" text-anchor="middle" font-size="10" fill="#8d8d96">0</text>
+<defs><pattern id="dotgrid" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.75" fill="#3a3a3a" opacity="0.7" /></pattern><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b5b5f"/></marker></defs>
+<rect width="100%" height="100%" fill="#080808" />
+<text x="520" y="44" text-anchor="middle" font-size="28" font-weight="800" fill="#ffffff">Recall@1 delta: TurboQuant vs FAISS IndexPQ (pp)</text>
+<text x="520" y="72" text-anchor="middle" font-size="17" fill="#d7d7d9">Shared turbo-graph / turbovec core | positive = TurboQuant higher recall</text>
+<line x1="565.0" y1="50" x2="565.0" y2="480" stroke="#5b5b5f" stroke-width="1"/>
+<rect x="565.0" y="66.1" width="348.0" height="39.4" rx="3" fill="#ff5a14"/>
+<text x="120" y="90" text-anchor="end" font-size="14" fill="#d9d9dc">1536 2-bit</text>
+<text x="919.0" y="90" text-anchor="start" font-size="16" font-weight="600" fill="#ffffff">+1.90 pp</text>
+<rect x="565.0" y="137.8" width="146.5" height="39.4" rx="3" fill="#ff5a14"/>
+<text x="120" y="162" text-anchor="end" font-size="14" fill="#d9d9dc">1536 4-bit</text>
+<text x="717.5" y="162" text-anchor="start" font-size="16" font-weight="600" fill="#ffffff">+0.80 pp</text>
+<rect x="565.0" y="209.5" width="311.4" height="39.4" rx="3" fill="#ff5a14"/>
+<text x="120" y="233" text-anchor="end" font-size="14" fill="#d9d9dc">3072 2-bit</text>
+<text x="882.4" y="233" text-anchor="start" font-size="16" font-weight="600" fill="#ffffff">+1.70 pp</text>
+<rect x="565.0" y="281.1" width="36.6" height="39.4" rx="3" fill="#ff5a14"/>
+<text x="120" y="305" text-anchor="end" font-size="14" fill="#d9d9dc">3072 4-bit</text>
+<text x="607.6" y="305" text-anchor="start" font-size="16" font-weight="600" fill="#ffffff">+0.20 pp</text>
+<rect x="554.0" y="352.8" width="11.0" height="39.4" rx="3" fill="#4a4a4d"/>
+<text x="120" y="376" text-anchor="end" font-size="14" fill="#d9d9dc">GloVe 2-bit</text>
+<text x="548.0" y="376" text-anchor="end" font-size="16" font-weight="600" fill="#ffffff">-0.06 pp</text>
+<rect x="565.0" y="424.5" width="161.2" height="39.4" rx="3" fill="#ff5a14"/>
+<text x="120" y="448" text-anchor="end" font-size="14" fill="#d9d9dc">GloVe 4-bit</text>
+<text x="732.2" y="448" text-anchor="start" font-size="16" font-weight="600" fill="#ffffff">+0.88 pp</text>
+<text x="565" y="508" text-anchor="middle" font-size="17" fill="#d7d7d9">0</text>
 </svg>

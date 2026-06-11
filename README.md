@@ -39,11 +39,11 @@ encoding/search, `.tv` / `.tvim`, and the core Python index APIs are the same
 lineage. The new public surface is the graph-memory layer around that core.
 
 <p align="center">
-  <img src="docs/stack.svg" alt="turbovec vs turbo-graph stack" width="92%">
+  <img src="docs/stack.svg" alt="turbovec vs turbo-graph stack" width="100%">
 </p>
 
-Purple block = **graph layer** in this fork. Shared violet block =
-[turbovec](https://github.com/RyanCodrai/turbovec) **TurboQuant core**.
+Orange block = **graph layer** in this fork. Shared core =
+[turbovec](https://github.com/RyanCodrai/turbovec) **TurboQuant lineage**.
 
 <details>
 <summary>Full capability matrix</summary>
@@ -85,11 +85,11 @@ turbovec leaves in application code: graph expansion, metadata indexes,
 candidate-list intersection, reusable view caches, rerank, and explainability.
 
 <p align="center">
-  <img src="docs/query_paths.svg" alt="Query path comparison" width="96%">
+  <img src="docs/query_paths.svg" alt="Query path comparison" width="100%">
 </p>
 
-Orange boxes = assembly work you still do in app code with turbovec. Indigo
-box = what turbo-graph compiles once and reuses.
+Orange boxes = assembly work you still do in app code with turbovec. The
+turbo-graph path compiles the constraint view once and reuses it.
 
 **Rule of thumb:** turbovec is enough when filters are light. **turbo-graph
 wins when constraints are the product** and
@@ -102,7 +102,7 @@ graph-memory requests instead of serializing on the interpreter lock.
 ### Should you migrate?
 
 <p align="center">
-  <img src="docs/migration.svg" alt="Migration decision flow" width="72%">
+  <img src="docs/migration.svg" alt="Migration decision flow" width="100%">
 </p>
 
 Answer **yes** to three or more:
@@ -141,12 +141,15 @@ Baseline: FAISS `IndexPQ` with LUT256 and training. **Different** from the
 speed baseline below.
 
 <p align="center">
-  <img src="docs/recall_delta.svg" alt="R@1 delta summary" width="88%">
+  <img src="docs/recall_delta.svg" alt="R@1 delta summary" width="100%">
 </p>
 
 <p align="center">
-  <img src="docs/recall_d1536.svg" alt="Recall curves d=1536" width="48%">
-  <img src="docs/recall_d3072.svg" alt="Recall curves d=3072" width="48%">
+  <img src="docs/recall_d1536.svg" alt="Recall curves d=1536" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/recall_d3072.svg" alt="Recall curves d=3072" width="100%">
 </p>
 
 GloVe 2-bit is the one cell where FAISS edges ahead (-0.06pp). Both converge
@@ -154,17 +157,26 @@ by k around 16. Raw data: [`benchmarks/results/`](benchmarks/results/).
 
 ### Speed vs FAISS IndexPQFastScan
 
-Median of 5 runs. Green = TurboQuant faster.
+Median of 5 runs. Orange = TurboQuant faster; gray = FAISS faster or parity.
 
 <p align="center">
-  <img src="docs/speed_grid.svg" alt="Speed win loss grid" width="92%">
+  <img src="docs/speed_grid.svg" alt="Speed win loss grid" width="100%">
 </p>
 
 <p align="center">
-  <img src="docs/arm_speed_st.svg" alt="ARM ST" width="24%">
-  <img src="docs/arm_speed_mt.svg" alt="ARM MT" width="24%">
-  <img src="docs/x86_speed_st.svg" alt="x86 ST" width="24%">
-  <img src="docs/x86_speed_mt.svg" alt="x86 MT" width="24%">
+  <img src="docs/arm_speed_st.svg" alt="ARM ST" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/arm_speed_mt.svg" alt="ARM MT" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/x86_speed_st.svg" alt="x86 ST" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/x86_speed_mt.svg" alt="x86 MT" width="100%">
 </p>
 
 ARM wins all 8 configs. x86 2-bit MT is the known gap vs FAISS AVX-512 VBMI.
@@ -196,7 +208,7 @@ ARM wins all 8 configs. x86 2-bit MT is the known gap vs FAISS AVX-512 VBMI.
 ### Compression (100K vectors)
 
 <p align="center">
-  <img src="docs/compression.svg" alt="Compression vs FP32" width="92%">
+  <img src="docs/compression.svg" alt="Compression vs FP32" width="100%">
 </p>
 
 10M x 1536d at 2-bit is about **4 GB** of index RAM, vs about 31 GB for
@@ -205,7 +217,7 @@ float32 vectors.
 ### Graph layer
 
 <p align="center">
-  <img src="docs/selectivity.svg" alt="Selectivity latency" width="80%">
+  <img src="docs/selectivity.svg" alt="Selectivity latency" width="100%">
 </p>
 
 Low selectivity is already fast with kernel `SlotMask`. turbo-graph's target

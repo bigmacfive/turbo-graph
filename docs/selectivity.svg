@@ -1,60 +1,64 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 560" width="1040" height="560">
 <style>
-  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-  .title { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
-  .subtitle { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #8d8d96; }
-  .panel { font: 700 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
-  .label { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f5f5f7; }
-  .secondary { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #9c9ca6; }
-  .tick { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #777782; }
-  .value { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f5f5f7; }
-  .value-accent { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d8d0ff; }
-  .axis { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d7d7df; }
-  .legend { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f5f5f7; }
+  text { font-family: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  .title { font: 800 30px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
+  .subtitle { font: 600 17px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d7d7d9; }
+  .panel { font: 700 18px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; letter-spacing: 1.2px; }
+  .label { font: 700 16px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f2f2f2; }
+  .secondary { font: 500 14px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #a9a9ad; }
+  .tick { font: 500 13px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #85858b; }
+  .value { font: 700 14px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f2f2f2; }
+  .value-accent { font: 800 14px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ff6a1f; }
+  .axis { font: 700 15px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d9d9dc; }
+  .legend { font: 700 14px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f2f2f2; }
+  .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
 </style>
-<rect width="100%" height="100%" fill="#000000" />
-<text x="360" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">graph_view_bench: latency by selectivity (ms)</text>
-<text x="360" y="46" text-anchor="middle" font-size="10" fill="#8d8d96">Lower is better | 1M vectors, M3 Max</text>
-<line x1="70" y1="305.0" x2="690" y2="305.0" stroke="#202026" stroke-width="1"/>
-<text x="62" y="309.0" text-anchor="end" class="tick">0.00</text>
-<line x1="70" y1="263.3" x2="690" y2="263.3" stroke="#202026" stroke-width="1"/>
-<text x="62" y="267.3" text-anchor="end" class="tick">0.05</text>
-<line x1="70" y1="221.7" x2="690" y2="221.7" stroke="#202026" stroke-width="1"/>
-<text x="62" y="225.7" text-anchor="end" class="tick">0.09</text>
-<line x1="70" y1="180.0" x2="690" y2="180.0" stroke="#202026" stroke-width="1"/>
-<text x="62" y="184.0" text-anchor="end" class="tick">0.14</text>
-<line x1="70" y1="138.3" x2="690" y2="138.3" stroke="#202026" stroke-width="1"/>
-<text x="62" y="142.3" text-anchor="end" class="tick">0.19</text>
-<line x1="70" y1="96.7" x2="690" y2="96.7" stroke="#202026" stroke-width="1"/>
-<text x="62" y="100.7" text-anchor="end" class="tick">0.23</text>
-<line x1="70" y1="55.0" x2="690" y2="55.0" stroke="#202026" stroke-width="1"/>
+<defs><pattern id="dotgrid" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.75" fill="#3a3a3a" opacity="0.7" /></pattern><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b5b5f"/></marker></defs>
+<rect width="100%" height="100%" fill="#080808" />
+<text x="520" y="44" text-anchor="middle" font-size="28" font-weight="800" fill="#ffffff">graph_view_bench: latency by selectivity (ms)</text>
+<text x="520" y="72" text-anchor="middle" font-size="17" fill="#d7d7d9">Lower is better | 1M vectors, M3 Max</text>
+<rect x="70" y="55" width="940" height="450" fill="#171717" stroke="#323232" stroke-width="1"/>
+<rect x="70" y="55" width="940" height="450" fill="url(#dotgrid)" opacity="0.95"/>
+<line x1="70" y1="505.0" x2="1010" y2="505.0" stroke="#2b2b2b" stroke-width="1"/>
+<text x="62" y="509.0" text-anchor="end" class="tick">0.00</text>
+<line x1="70" y1="430.0" x2="1010" y2="430.0" stroke="#2b2b2b" stroke-width="1"/>
+<text x="62" y="434.0" text-anchor="end" class="tick">0.05</text>
+<line x1="70" y1="355.0" x2="1010" y2="355.0" stroke="#2b2b2b" stroke-width="1"/>
+<text x="62" y="359.0" text-anchor="end" class="tick">0.09</text>
+<line x1="70" y1="280.0" x2="1010" y2="280.0" stroke="#2b2b2b" stroke-width="1"/>
+<text x="62" y="284.0" text-anchor="end" class="tick">0.14</text>
+<line x1="70" y1="205.0" x2="1010" y2="205.0" stroke="#2b2b2b" stroke-width="1"/>
+<text x="62" y="209.0" text-anchor="end" class="tick">0.19</text>
+<line x1="70" y1="130.0" x2="1010" y2="130.0" stroke="#2b2b2b" stroke-width="1"/>
+<text x="62" y="134.0" text-anchor="end" class="tick">0.23</text>
+<line x1="70" y1="55.0" x2="1010" y2="55.0" stroke="#2b2b2b" stroke-width="1"/>
 <text x="62" y="59.0" text-anchor="end" class="tick">0.28</text>
-<line x1="70" y1="305.0" x2="690" y2="305.0" stroke="#4b4b56" stroke-width="1.5"/>
-<text x="34" y="180" transform="rotate(-90, 34, 180)" class="axis">ms</text>
-<rect x="85.5" y="292.5" width="26.3" height="12.5" rx="2" fill="#ff8d7a"/>
-<rect x="116.5" y="298.8" width="26.3" height="6.2" rx="2" fill="#ffd86b"/>
-<rect x="147.5" y="290.7" width="26.3" height="14.3" rx="2" fill="#72d7ff"/>
-<text x="132" y="327" text-anchor="middle" font-size="10" fill="#d7d7df">0.10%</text>
-<rect x="209.5" y="293.4" width="26.3" height="11.6" rx="2" fill="#ff8d7a"/>
-<rect x="240.5" y="298.8" width="26.3" height="6.2" rx="2" fill="#ffd86b"/>
-<rect x="271.5" y="296.1" width="26.3" height="8.9" rx="2" fill="#72d7ff"/>
-<text x="256" y="327" text-anchor="middle" font-size="10" fill="#d7d7df">1.00%</text>
-<rect x="333.5" y="288.0" width="26.3" height="17.0" rx="2" fill="#ff8d7a"/>
-<rect x="364.5" y="297.0" width="26.3" height="8.0" rx="2" fill="#ffd86b"/>
-<rect x="395.5" y="294.3" width="26.3" height="10.7" rx="2" fill="#72d7ff"/>
-<text x="380" y="327" text-anchor="middle" font-size="10" fill="#d7d7df">5.00%</text>
-<rect x="457.5" y="274.6" width="26.3" height="30.4" rx="2" fill="#ff8d7a"/>
-<rect x="488.5" y="291.6" width="26.3" height="13.4" rx="2" fill="#ffd86b"/>
-<rect x="519.5" y="282.7" width="26.3" height="22.3" rx="2" fill="#72d7ff"/>
-<text x="504" y="327" text-anchor="middle" font-size="10" fill="#d7d7df">20.0%</text>
-<rect x="581.5" y="89.8" width="26.3" height="215.2" rx="2" fill="#ff8d7a"/>
-<rect x="612.5" y="221.1" width="26.3" height="83.9" rx="2" fill="#ffd86b"/>
-<rect x="643.5" y="257.7" width="26.3" height="47.3" rx="2" fill="#72d7ff"/>
-<text x="628" y="327" text-anchor="middle" font-size="10" fill="#d7d7df">100%</text>
-<rect x="70" y="332" width="12" height="12" rx="2" fill="#ff8d7a"/>
-<text x="88" y="342" font-size="10" fill="#d7d7df">bool filter</text>
-<rect x="250" y="332" width="12" height="12" rx="2" fill="#ffd86b"/>
-<text x="268" y="342" font-size="10" fill="#d7d7df">slot_mask</text>
-<rect x="430" y="332" width="12" height="12" rx="2" fill="#72d7ff"/>
-<text x="448" y="342" font-size="10" fill="#d7d7df">graph_view</text>
+<line x1="70" y1="505.0" x2="1010" y2="505.0" stroke="#5b5b5f" stroke-width="1.5"/>
+<text x="34" y="280" transform="rotate(-90, 34, 280)" class="axis">ms</text>
+<rect x="93.5" y="482.5" width="39.9" height="22.5" rx="2" fill="#4a4a4d"/>
+<rect x="140.5" y="493.8" width="39.9" height="11.2" rx="2" fill="#737377"/>
+<rect x="187.5" y="479.3" width="39.9" height="25.7" rx="2" fill="#ff5a14"/>
+<text x="164" y="527" text-anchor="middle" font-size="16" fill="#d9d9dc">0.10%</text>
+<rect x="281.5" y="484.1" width="39.9" height="20.9" rx="2" fill="#4a4a4d"/>
+<rect x="328.5" y="493.8" width="39.9" height="11.2" rx="2" fill="#737377"/>
+<rect x="375.5" y="488.9" width="39.9" height="16.1" rx="2" fill="#ff5a14"/>
+<text x="352" y="527" text-anchor="middle" font-size="16" fill="#d9d9dc">1.00%</text>
+<rect x="469.5" y="474.5" width="39.9" height="30.5" rx="2" fill="#4a4a4d"/>
+<rect x="516.5" y="490.5" width="39.9" height="14.5" rx="2" fill="#737377"/>
+<rect x="563.5" y="485.7" width="39.9" height="19.3" rx="2" fill="#ff5a14"/>
+<text x="540" y="527" text-anchor="middle" font-size="16" fill="#d9d9dc">5.00%</text>
+<rect x="657.5" y="450.4" width="39.9" height="54.6" rx="2" fill="#4a4a4d"/>
+<rect x="704.5" y="480.9" width="39.9" height="24.1" rx="2" fill="#737377"/>
+<rect x="751.5" y="464.8" width="39.9" height="40.2" rx="2" fill="#ff5a14"/>
+<text x="728" y="527" text-anchor="middle" font-size="16" fill="#d9d9dc">20.0%</text>
+<rect x="845.5" y="117.7" width="39.9" height="387.3" rx="2" fill="#4a4a4d"/>
+<rect x="892.5" y="353.9" width="39.9" height="151.1" rx="2" fill="#737377"/>
+<rect x="939.5" y="419.8" width="39.9" height="85.2" rx="2" fill="#ff5a14"/>
+<text x="916" y="527" text-anchor="middle" font-size="16" fill="#d9d9dc">100%</text>
+<rect x="70" y="532" width="12" height="12" rx="2" fill="#4a4a4d"/>
+<text x="88" y="542" font-size="16" fill="#d9d9dc">bool filter</text>
+<rect x="250" y="532" width="12" height="12" rx="2" fill="#737377"/>
+<text x="268" y="542" font-size="16" fill="#d9d9dc">slot_mask</text>
+<rect x="430" y="532" width="12" height="12" rx="2" fill="#ff5a14"/>
+<text x="448" y="542" font-size="16" fill="#d9d9dc">graph_view</text>
 </svg>

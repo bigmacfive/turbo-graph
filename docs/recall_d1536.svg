@@ -1,86 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="460" viewBox="0 0 900 460" role="img" aria-label="Recall — d=1536">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="640" viewBox="0 0 1200 640" role="img" aria-label="Recall — d=1536">
   <style>
-  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-  .title { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
-  .subtitle { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #8d8d96; }
-  .panel { font: 700 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
-  .label { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f5f5f7; }
-  .secondary { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #9c9ca6; }
-  .tick { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #777782; }
-  .value { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f5f5f7; }
-  .value-accent { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d8d0ff; }
-  .axis { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d7d7df; }
-  .legend { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f5f5f7; }
+  text { font-family: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  .title { font: 800 30px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
+  .subtitle { font: 600 17px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d7d7d9; }
+  .panel { font: 700 18px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; letter-spacing: 1.2px; }
+  .label { font: 700 16px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f2f2f2; }
+  .secondary { font: 500 14px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #a9a9ad; }
+  .tick { font: 500 13px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #85858b; }
+  .value { font: 700 14px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f2f2f2; }
+  .value-accent { font: 800 14px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ff6a1f; }
+  .axis { font: 700 15px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d9d9dc; }
+  .legend { font: 700 14px "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f2f2f2; }
+  .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
 </style>
-  <rect width="100%" height="100%" fill="#000000" />
-  <text x="84" y="32" class="title">Recall — d=1536</text>
-  <text x="84" y="52" class="subtitle">100K vectors, k=64 search. recall@1@k measures how often the true top-1 result appears in the top-k returned.</text>
-  <line x1="84" y1="352.0" x2="868" y2="352.0" stroke="#202026" stroke-width="1" />
-<text x="74" y="356.0" text-anchor="end" class="tick">0.85</text>
-<line x1="84" y1="298.0" x2="868" y2="298.0" stroke="#202026" stroke-width="1" />
-<text x="74" y="302.0" text-anchor="end" class="tick">0.88</text>
-<line x1="84" y1="244.0" x2="868" y2="244.0" stroke="#202026" stroke-width="1" />
-<text x="74" y="248.0" text-anchor="end" class="tick">0.91</text>
-<line x1="84" y1="190.0" x2="868" y2="190.0" stroke="#202026" stroke-width="1" />
-<text x="74" y="194.0" text-anchor="end" class="tick">0.94</text>
-<line x1="84" y1="136.0" x2="868" y2="136.0" stroke="#202026" stroke-width="1" />
-<text x="74" y="140.0" text-anchor="end" class="tick">0.97</text>
-<line x1="84" y1="82.0" x2="868" y2="82.0" stroke="#202026" stroke-width="1" />
-<text x="74" y="86.0" text-anchor="end" class="tick">1.00</text>
-<line x1="84" y1="352.0" x2="868" y2="352.0" stroke="#4b4b56" stroke-width="1.5" />
-<text x="84" y="68" class="panel">d=1536</text>
-<text x="84.0" y="372" text-anchor="middle" class="label">1</text>
-<text x="214.7" y="372" text-anchor="middle" class="label">2</text>
-<text x="345.3" y="372" text-anchor="middle" class="label">4</text>
-<text x="476.0" y="372" text-anchor="middle" class="label">8</text>
-<text x="606.7" y="372" text-anchor="middle" class="label">16</text>
-<text x="737.3" y="372" text-anchor="middle" class="label">32</text>
-<text x="868.0" y="372" text-anchor="middle" class="label">64</text>
-<path d="M 84.0,313.7 L 214.7,130.8 L 345.3,95.9 L 476.0,90.7 L 606.7,90.7 L 737.3,90.7 L 868.0,90.7" fill="none" stroke="#777782" stroke-width="2.25" stroke-dasharray="6 4" />
-<circle cx="84.0" cy="313.7" r="3.5" fill="#777782" />
-<circle cx="214.7" cy="130.8" r="3.5" fill="#777782" />
-<circle cx="345.3" cy="95.9" r="3.5" fill="#777782" />
-<circle cx="476.0" cy="90.7" r="3.5" fill="#777782" />
-<circle cx="606.7" cy="90.7" r="3.5" fill="#777782" />
-<circle cx="737.3" cy="90.7" r="3.5" fill="#777782" />
-<circle cx="868.0" cy="90.7" r="3.5" fill="#777782" />
-<path d="M 84.0,149.9 L 214.7,94.2 L 345.3,90.7 L 476.0,90.7 L 606.7,90.7 L 737.3,90.7 L 868.0,90.7" fill="none" stroke="#4f515c" stroke-width="2.25" stroke-dasharray="6 4" />
-<circle cx="84.0" cy="149.9" r="3.5" fill="#4f515c" />
-<circle cx="214.7" cy="94.2" r="3.5" fill="#4f515c" />
-<circle cx="345.3" cy="90.7" r="3.5" fill="#4f515c" />
-<circle cx="476.0" cy="90.7" r="3.5" fill="#4f515c" />
-<circle cx="606.7" cy="90.7" r="3.5" fill="#4f515c" />
-<circle cx="737.3" cy="90.7" r="3.5" fill="#4f515c" />
-<circle cx="868.0" cy="90.7" r="3.5" fill="#4f515c" />
-<path d="M 84.0,280.6 L 214.7,127.3 L 345.3,94.2 L 476.0,90.7 L 606.7,90.7 L 737.3,90.7 L 868.0,90.7" fill="none" stroke="#8b6cff" stroke-width="2.25" />
-<circle cx="84.0" cy="280.6" r="3.5" fill="#8b6cff" />
-<circle cx="214.7" cy="127.3" r="3.5" fill="#8b6cff" />
-<circle cx="345.3" cy="94.2" r="3.5" fill="#8b6cff" />
-<circle cx="476.0" cy="90.7" r="3.5" fill="#8b6cff" />
-<circle cx="606.7" cy="90.7" r="3.5" fill="#8b6cff" />
-<circle cx="737.3" cy="90.7" r="3.5" fill="#8b6cff" />
-<circle cx="868.0" cy="90.7" r="3.5" fill="#8b6cff" />
-<path d="M 84.0,136.0 L 214.7,94.2 L 345.3,90.7 L 476.0,90.7 L 606.7,90.7 L 737.3,90.7 L 868.0,90.7" fill="none" stroke="#72d7ff" stroke-width="2.25" />
-<circle cx="84.0" cy="136.0" r="3.5" fill="#72d7ff" />
-<circle cx="214.7" cy="94.2" r="3.5" fill="#72d7ff" />
-<circle cx="345.3" cy="90.7" r="3.5" fill="#72d7ff" />
-<circle cx="476.0" cy="90.7" r="3.5" fill="#72d7ff" />
-<circle cx="606.7" cy="90.7" r="3.5" fill="#72d7ff" />
-<circle cx="737.3" cy="90.7" r="3.5" fill="#72d7ff" />
-<circle cx="868.0" cy="90.7" r="3.5" fill="#72d7ff" />
-<text x="22" y="217.0" transform="rotate(-90, 22, 217.0)" class="axis">recall@1@k</text>
-<text x="476.0" y="400" text-anchor="middle" class="axis">k</text>
-<line x1="84" y1="432" x2="108" y2="432" stroke="#8b6cff" stroke-width="2.25" />
-<circle cx="96" cy="432" r="3.5" fill="#8b6cff" />
-<text x="116" y="435" class="legend">TQ 2-bit</text>
-<line x1="224" y1="432" x2="248" y2="432" stroke="#72d7ff" stroke-width="2.25" />
-<circle cx="236" cy="432" r="3.5" fill="#72d7ff" />
-<text x="256" y="435" class="legend">TQ 4-bit</text>
-<line x1="364" y1="432" x2="388" y2="432" stroke="#777782" stroke-width="2.25" stroke-dasharray="6 4" />
-<circle cx="376" cy="432" r="3.5" fill="#777782" />
-<text x="396" y="435" class="legend">FAISS 2-bit</text>
-<line x1="504" y1="432" x2="528" y2="432" stroke="#4f515c" stroke-width="2.25" stroke-dasharray="6 4" />
-<circle cx="516" cy="432" r="3.5" fill="#4f515c" />
-<text x="536" y="435" class="legend">FAISS 4-bit</text>
+  <defs><pattern id="dotgrid" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.75" fill="#3a3a3a" opacity="0.7" /></pattern><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b5b5f"/></marker></defs>
+  <rect width="100%" height="100%" fill="#080808" />
+  <text x="112" y="46" class="title">Recall — d=1536</text>
+  <text x="112" y="76" class="subtitle">100K vectors, k=64 search. recall@1@k measures true top-1 recovery inside top-k.</text>
+  <rect x="112" y="118" width="1036" height="374" fill="#171717" stroke="#323232" stroke-width="1"/>
+<rect x="112" y="118" width="1036" height="374" fill="url(#dotgrid)" opacity="0.95"/>
+<line x1="112" y1="492.0" x2="1148" y2="492.0" stroke="#2b2b2b" stroke-width="1" />
+<text x="102" y="496.0" text-anchor="end" class="tick">0.85</text>
+<line x1="112" y1="417.2" x2="1148" y2="417.2" stroke="#2b2b2b" stroke-width="1" />
+<text x="102" y="421.2" text-anchor="end" class="tick">0.88</text>
+<line x1="112" y1="342.4" x2="1148" y2="342.4" stroke="#2b2b2b" stroke-width="1" />
+<text x="102" y="346.4" text-anchor="end" class="tick">0.91</text>
+<line x1="112" y1="267.6" x2="1148" y2="267.6" stroke="#2b2b2b" stroke-width="1" />
+<text x="102" y="271.6" text-anchor="end" class="tick">0.94</text>
+<line x1="112" y1="192.8" x2="1148" y2="192.8" stroke="#2b2b2b" stroke-width="1" />
+<text x="102" y="196.8" text-anchor="end" class="tick">0.97</text>
+<line x1="112" y1="118.0" x2="1148" y2="118.0" stroke="#2b2b2b" stroke-width="1" />
+<text x="102" y="122.0" text-anchor="end" class="tick">1.00</text>
+<line x1="112" y1="492.0" x2="1148" y2="492.0" stroke="#5b5b5f" stroke-width="1.5" />
+<text x="112" y="104" class="panel">d=1536</text>
+<text x="112.0" y="512" text-anchor="middle" class="label">1</text>
+<text x="284.7" y="512" text-anchor="middle" class="label">2</text>
+<text x="457.3" y="512" text-anchor="middle" class="label">4</text>
+<text x="630.0" y="512" text-anchor="middle" class="label">8</text>
+<text x="802.7" y="512" text-anchor="middle" class="label">16</text>
+<text x="975.3" y="512" text-anchor="middle" class="label">32</text>
+<text x="1148.0" y="512" text-anchor="middle" class="label">64</text>
+<path d="M 112.0,438.9 L 284.7,185.6 L 457.3,137.3 L 630.0,130.1 L 802.7,130.1 L 975.3,130.1 L 1148.0,130.1" fill="none" stroke="#56565a" stroke-width="2.25" stroke-dasharray="6 4" />
+<circle cx="112.0" cy="438.9" r="3.5" fill="#56565a" />
+<circle cx="284.7" cy="185.6" r="3.5" fill="#56565a" />
+<circle cx="457.3" cy="137.3" r="3.5" fill="#56565a" />
+<circle cx="630.0" cy="130.1" r="3.5" fill="#56565a" />
+<circle cx="802.7" cy="130.1" r="3.5" fill="#56565a" />
+<circle cx="975.3" cy="130.1" r="3.5" fill="#56565a" />
+<circle cx="1148.0" cy="130.1" r="3.5" fill="#56565a" />
+<path d="M 112.0,212.1 L 284.7,134.9 L 457.3,130.1 L 630.0,130.1 L 802.7,130.1 L 975.3,130.1 L 1148.0,130.1" fill="none" stroke="#3f3f43" stroke-width="2.25" stroke-dasharray="6 4" />
+<circle cx="112.0" cy="212.1" r="3.5" fill="#3f3f43" />
+<circle cx="284.7" cy="134.9" r="3.5" fill="#3f3f43" />
+<circle cx="457.3" cy="130.1" r="3.5" fill="#3f3f43" />
+<circle cx="630.0" cy="130.1" r="3.5" fill="#3f3f43" />
+<circle cx="802.7" cy="130.1" r="3.5" fill="#3f3f43" />
+<circle cx="975.3" cy="130.1" r="3.5" fill="#3f3f43" />
+<circle cx="1148.0" cy="130.1" r="3.5" fill="#3f3f43" />
+<path d="M 112.0,393.1 L 284.7,180.7 L 457.3,134.9 L 630.0,130.1 L 802.7,130.1 L 975.3,130.1 L 1148.0,130.1" fill="none" stroke="#ff5a14" stroke-width="2.25" />
+<circle cx="112.0" cy="393.1" r="3.5" fill="#ff5a14" />
+<circle cx="284.7" cy="180.7" r="3.5" fill="#ff5a14" />
+<circle cx="457.3" cy="134.9" r="3.5" fill="#ff5a14" />
+<circle cx="630.0" cy="130.1" r="3.5" fill="#ff5a14" />
+<circle cx="802.7" cy="130.1" r="3.5" fill="#ff5a14" />
+<circle cx="975.3" cy="130.1" r="3.5" fill="#ff5a14" />
+<circle cx="1148.0" cy="130.1" r="3.5" fill="#ff5a14" />
+<path d="M 112.0,192.8 L 284.7,134.9 L 457.3,130.1 L 630.0,130.1 L 802.7,130.1 L 975.3,130.1 L 1148.0,130.1" fill="none" stroke="#ff8a2a" stroke-width="2.25" />
+<circle cx="112.0" cy="192.8" r="3.5" fill="#ff8a2a" />
+<circle cx="284.7" cy="134.9" r="3.5" fill="#ff8a2a" />
+<circle cx="457.3" cy="130.1" r="3.5" fill="#ff8a2a" />
+<circle cx="630.0" cy="130.1" r="3.5" fill="#ff8a2a" />
+<circle cx="802.7" cy="130.1" r="3.5" fill="#ff8a2a" />
+<circle cx="975.3" cy="130.1" r="3.5" fill="#ff8a2a" />
+<circle cx="1148.0" cy="130.1" r="3.5" fill="#ff8a2a" />
+<text x="50" y="305.0" transform="rotate(-90, 50, 305.0)" class="axis">recall@1@k</text>
+<text x="630.0" y="540" text-anchor="middle" class="axis">k</text>
+<line x1="112" y1="612" x2="136" y2="612" stroke="#ff5a14" stroke-width="2.25" />
+<circle cx="124" cy="612" r="3.5" fill="#ff5a14" />
+<text x="144" y="615" class="legend">TQ 2-bit</text>
+<line x1="252" y1="612" x2="276" y2="612" stroke="#ff8a2a" stroke-width="2.25" />
+<circle cx="264" cy="612" r="3.5" fill="#ff8a2a" />
+<text x="284" y="615" class="legend">TQ 4-bit</text>
+<line x1="392" y1="612" x2="416" y2="612" stroke="#56565a" stroke-width="2.25" stroke-dasharray="6 4" />
+<circle cx="404" cy="612" r="3.5" fill="#56565a" />
+<text x="424" y="615" class="legend">FAISS 2-bit</text>
+<line x1="532" y1="612" x2="556" y2="612" stroke="#3f3f43" stroke-width="2.25" stroke-dasharray="6 4" />
+<circle cx="544" cy="612" r="3.5" fill="#3f3f43" />
+<text x="564" y="615" class="legend">FAISS 4-bit</text>
 </svg>
