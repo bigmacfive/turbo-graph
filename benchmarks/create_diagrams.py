@@ -161,11 +161,11 @@ def paired_panel(px, py, pw, ph, panel_title, groups, tick_fmt, value_fmt, y_max
         faiss_y = py + ph - faiss_h
         label_y = py + ph + 22
         parts.append(
-            f'<rect x="{tq_x:.1f}" y="{tq_y:.1f}" width="{bar_w}" height="{tq_h:.1f}" rx="6" '
+            f'<rect x="{tq_x:.1f}" y="{tq_y:.1f}" width="{bar_w}" height="{tq_h:.1f}" '
             f'fill="{C["tq"]}" stroke="{C["tq_stroke"]}" stroke-width="1.5" />'
         )
         parts.append(
-            f'<rect x="{faiss_x:.1f}" y="{faiss_y:.1f}" width="{bar_w}" height="{faiss_h:.1f}" rx="6" fill="{C["faiss"]}" />'
+            f'<rect x="{faiss_x:.1f}" y="{faiss_y:.1f}" width="{bar_w}" height="{faiss_h:.1f}" fill="{C["faiss"]}" />'
         )
         parts.append(
             f'<text x="{tq_x + bar_w/2:.1f}" y="{tq_y - 6:.1f}" text-anchor="middle" class="value-accent">{xe(value_fmt(g["tq"]))}</text>'
@@ -182,9 +182,9 @@ def paired_panel(px, py, pw, ph, panel_title, groups, tick_fmt, value_fmt, y_max
 
 def legend_tq_faiss(x, y):
     parts = [
-        f'<rect x="{x}" y="{y - 10}" width="14" height="14" rx="3" fill="{C["tq"]}" stroke="{C["tq_stroke"]}" stroke-width="1.5" />',
+        f'<rect x="{x}" y="{y - 10}" width="14" height="14" fill="{C["tq"]}" stroke="{C["tq_stroke"]}" stroke-width="1.5" />',
         f'<text x="{x + 22}" y="{y + 1}" class="legend" style="fill: {C["tq_text"]};">TurboQuant</text>',
-        f'<rect x="{x + 140}" y="{y - 10}" width="14" height="14" rx="3" fill="{C["faiss"]}" />',
+        f'<rect x="{x + 140}" y="{y - 10}" width="14" height="14" fill="{C["faiss"]}" />',
         f'<text x="{x + 162}" y="{y + 1}" class="legend">FAISS</text>',
     ]
     return "\n".join(parts)
@@ -385,7 +385,7 @@ def write_compression_chart(filename):
             value_cls = "value-accent" if accent else "value"
             return "\n".join(
                 [
-                    f'<rect x="{xbar:.1f}" y="{y:.1f}" width="{bar_w}" height="{h:.1f}" rx="6" fill="{color}"{stroke} />',
+                    f'<rect x="{xbar:.1f}" y="{y:.1f}" width="{bar_w}" height="{h:.1f}" fill="{color}"{stroke} />',
                     f'<text x="{xbar + bar_w/2:.1f}" y="{y - 6:.1f}" text-anchor="middle" class="{value_cls}">{xe(f"{val:.0f}")}</text>',
                 ]
             )
@@ -414,7 +414,7 @@ def write_compression_chart(filename):
     for i, (lbl, col, accent) in enumerate(items):
         lcx = lx + i * 120
         stroke = f' stroke="{C["tq_stroke"]}" stroke-width="1.5"' if accent else ""
-        parts.append(f'<rect x="{lcx}" y="{legend_y - 10}" width="14" height="14" rx="3" fill="{col}"{stroke} />')
+        parts.append(f'<rect x="{lcx}" y="{legend_y - 10}" width="14" height="14" fill="{col}"{stroke} />')
         parts.append(f'<text x="{lcx + 22}" y="{legend_y + 1}" class="legend">{xe(lbl)}</text>')
 
     body = "\n".join(parts)
@@ -644,8 +644,8 @@ def build_recall_delta_chart():
         ("GloVe 2-bit", recall_r1_delta_pp("glove_2bit")),
         ("GloVe 4-bit", recall_r1_delta_pp("glove_4bit")),
     ]
-    W, H = 1040, 520
-    ml, mr, mt, mb = 130, 40, 50, 40
+    W, H = 1100, 600
+    ml, mr, mt, mb = 150, 80, 112, 58
     pw, ph = W - ml - mr, H - mt - mb
     max_abs = max(abs(v) for _, v in rows) * 1.25
     zero_x = ml + pw / 2
@@ -656,9 +656,9 @@ def build_recall_delta_chart():
         style_block(),
         defs_block(),
         f'{bg_rect()}',
-        f'<text x="{W/2:.0f}" y="44" text-anchor="middle" font-size="28" font-weight="800" fill="{C["title"]}">'
+        f'<text x="{W/2:.0f}" y="42" text-anchor="middle" font-size="28" font-weight="800" fill="{C["title"]}">'
         f'{xe("Recall@1 delta: TurboQuant vs FAISS IndexPQ (pp)")}</text>',
-        f'<text x="{W/2:.0f}" y="72" text-anchor="middle" font-size="17" fill="{C["subtitle"]}">'
+        f'<text x="{W/2:.0f}" y="70" text-anchor="middle" font-size="17" fill="{C["subtitle"]}">'
         f'{xe("Shared turbo-graph / turbovec core | positive = TurboQuant higher recall")}</text>',
         f'<line x1="{zero_x:.1f}" y1="{mt}" x2="{zero_x:.1f}" y2="{mt + ph}" stroke="{C["baseline"]}" stroke-width="1"/>',
     ]
@@ -672,7 +672,7 @@ def build_recall_delta_chart():
             x, fill = zero_x, C["graph"]
         else:
             x, fill = zero_x - bw, C["faiss"]
-        svg.append(f'<rect x="{x:.1f}" y="{cy - bar_h/2:.1f}" width="{bw:.1f}" height="{bar_h:.1f}" rx="3" fill="{fill}"/>')
+        svg.append(f'<rect x="{x:.1f}" y="{cy - bar_h/2:.1f}" width="{bw:.1f}" height="{bar_h:.1f}" fill="{fill}"/>')
         svg.append(
             f'<text x="{ml - 10:.0f}" y="{cy + 4:.0f}" text-anchor="end" font-size="14" fill="{C["axis"]}">{xe(label)}</text>'
         )
@@ -744,7 +744,7 @@ def build_speed_grid_chart():
             sign = "+" if gain >= 0 else ""
             svg.append(
                 f'<rect x="{cx:.0f}" y="{ry:.0f}" width="{cell_w:.0f}" height="{cell_h:.0f}" '
-                f'rx="6" fill="{fill}" stroke="{stroke}" stroke-width="1"/>'
+                f'fill="{fill}" stroke="{stroke}" stroke-width="1"/>'
             )
             svg.append(
                 f'<text x="{cx + cell_w/2:.0f}" y="{ry + cell_h/2 + 5:.0f}" text-anchor="middle" '
@@ -820,7 +820,7 @@ def build_selectivity_chart():
             bh = val / y_max * ph
             svg.append(
                 f'<rect x="{bx:.1f}" y="{mt + ph - bh:.1f}" width="{bar_w * 0.85:.1f}" height="{bh:.1f}" '
-                f'rx="2" fill="{colors[si][0]}"/>'
+                f'fill="{colors[si][0]}"/>'
             )
         svg.append(
             f'<text x="{gx:.0f}" y="{mt + ph + 22:.0f}" text-anchor="middle" font-size="16" fill="{C["axis"]}">'
@@ -830,7 +830,7 @@ def build_selectivity_chart():
     leg_y = H - 28
     for i, (color, name) in enumerate(colors):
         lx = ml + i * 180
-        svg.append(f'<rect x="{lx:.0f}" y="{leg_y:.0f}" width="12" height="12" rx="2" fill="{color}"/>')
+        svg.append(f'<rect x="{lx:.0f}" y="{leg_y:.0f}" width="12" height="12" fill="{color}"/>')
         svg.append(
             f'<text x="{lx + 18:.0f}" y="{leg_y + 10:.0f}" font-size="16" fill="{C["axis"]}">{xe(name)}</text>'
         )

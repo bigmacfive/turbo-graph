@@ -35,30 +35,30 @@
 <text x="62" y="59.0" text-anchor="end" class="tick">0.28</text>
 <line x1="70" y1="505.0" x2="1010" y2="505.0" stroke="#5b5b5f" stroke-width="1.5"/>
 <text x="34" y="280" transform="rotate(-90, 34, 280)" class="axis">ms</text>
-<rect x="93.5" y="482.5" width="39.9" height="22.5" rx="2" fill="#4a4a4d"/>
-<rect x="140.5" y="493.8" width="39.9" height="11.2" rx="2" fill="#737377"/>
-<rect x="187.5" y="479.3" width="39.9" height="25.7" rx="2" fill="#ff5a14"/>
+<rect x="93.5" y="482.5" width="39.9" height="22.5" fill="#4a4a4d"/>
+<rect x="140.5" y="493.8" width="39.9" height="11.2" fill="#737377"/>
+<rect x="187.5" y="479.3" width="39.9" height="25.7" fill="#ff5a14"/>
 <text x="164" y="527" text-anchor="middle" font-size="16" fill="#d9d9dc">0.10%</text>
-<rect x="281.5" y="484.1" width="39.9" height="20.9" rx="2" fill="#4a4a4d"/>
-<rect x="328.5" y="493.8" width="39.9" height="11.2" rx="2" fill="#737377"/>
-<rect x="375.5" y="488.9" width="39.9" height="16.1" rx="2" fill="#ff5a14"/>
+<rect x="281.5" y="484.1" width="39.9" height="20.9" fill="#4a4a4d"/>
+<rect x="328.5" y="493.8" width="39.9" height="11.2" fill="#737377"/>
+<rect x="375.5" y="488.9" width="39.9" height="16.1" fill="#ff5a14"/>
 <text x="352" y="527" text-anchor="middle" font-size="16" fill="#d9d9dc">1.00%</text>
-<rect x="469.5" y="474.5" width="39.9" height="30.5" rx="2" fill="#4a4a4d"/>
-<rect x="516.5" y="490.5" width="39.9" height="14.5" rx="2" fill="#737377"/>
-<rect x="563.5" y="485.7" width="39.9" height="19.3" rx="2" fill="#ff5a14"/>
+<rect x="469.5" y="474.5" width="39.9" height="30.5" fill="#4a4a4d"/>
+<rect x="516.5" y="490.5" width="39.9" height="14.5" fill="#737377"/>
+<rect x="563.5" y="485.7" width="39.9" height="19.3" fill="#ff5a14"/>
 <text x="540" y="527" text-anchor="middle" font-size="16" fill="#d9d9dc">5.00%</text>
-<rect x="657.5" y="450.4" width="39.9" height="54.6" rx="2" fill="#4a4a4d"/>
-<rect x="704.5" y="480.9" width="39.9" height="24.1" rx="2" fill="#737377"/>
-<rect x="751.5" y="464.8" width="39.9" height="40.2" rx="2" fill="#ff5a14"/>
+<rect x="657.5" y="450.4" width="39.9" height="54.6" fill="#4a4a4d"/>
+<rect x="704.5" y="480.9" width="39.9" height="24.1" fill="#737377"/>
+<rect x="751.5" y="464.8" width="39.9" height="40.2" fill="#ff5a14"/>
 <text x="728" y="527" text-anchor="middle" font-size="16" fill="#d9d9dc">20.0%</text>
-<rect x="845.5" y="117.7" width="39.9" height="387.3" rx="2" fill="#4a4a4d"/>
-<rect x="892.5" y="353.9" width="39.9" height="151.1" rx="2" fill="#737377"/>
-<rect x="939.5" y="419.8" width="39.9" height="85.2" rx="2" fill="#ff5a14"/>
+<rect x="845.5" y="117.7" width="39.9" height="387.3" fill="#4a4a4d"/>
+<rect x="892.5" y="353.9" width="39.9" height="151.1" fill="#737377"/>
+<rect x="939.5" y="419.8" width="39.9" height="85.2" fill="#ff5a14"/>
 <text x="916" y="527" text-anchor="middle" font-size="16" fill="#d9d9dc">100%</text>
-<rect x="70" y="532" width="12" height="12" rx="2" fill="#4a4a4d"/>
+<rect x="70" y="532" width="12" height="12" fill="#4a4a4d"/>
 <text x="88" y="542" font-size="16" fill="#d9d9dc">bool filter</text>
-<rect x="250" y="532" width="12" height="12" rx="2" fill="#737377"/>
+<rect x="250" y="532" width="12" height="12" fill="#737377"/>
 <text x="268" y="542" font-size="16" fill="#d9d9dc">slot_mask</text>
-<rect x="430" y="532" width="12" height="12" rx="2" fill="#ff5a14"/>
+<rect x="430" y="532" width="12" height="12" fill="#ff5a14"/>
 <text x="448" y="542" font-size="16" fill="#d9d9dc">graph_view</text>
 </svg>

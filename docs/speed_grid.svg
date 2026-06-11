@@ -22,40 +22,40 @@
 <text x="594" y="93" text-anchor="middle" font-size="17" font-weight="700" fill="#d9d9dc">3072 2b</text>
 <text x="776" y="93" text-anchor="middle" font-size="17" font-weight="700" fill="#d9d9dc">3072 4b</text>
 <text x="140" y="145" text-anchor="end" font-size="17" font-weight="700" fill="#d9d9dc">ARM ST</text>
-<rect x="150" y="105" width="165" height="72" rx="6" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
+<rect x="150" y="105" width="165" height="72" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
 <text x="232" y="146" text-anchor="middle" font-size="24" font-weight="800" fill="#ff5a14">+12%</text>
-<rect x="331" y="105" width="165" height="72" rx="6" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
+<rect x="331" y="105" width="165" height="72" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
 <text x="414" y="146" text-anchor="middle" font-size="24" font-weight="800" fill="#ff5a14">+19%</text>
-<rect x="512" y="105" width="165" height="72" rx="6" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
+<rect x="512" y="105" width="165" height="72" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
 <text x="594" y="146" text-anchor="middle" font-size="24" font-weight="800" fill="#ff5a14">+13%</text>
-<rect x="693" y="105" width="165" height="72" rx="6" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
+<rect x="693" y="105" width="165" height="72" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
 <text x="776" y="146" text-anchor="middle" font-size="24" font-weight="800" fill="#ff5a14">+19%</text>
 <text x="140" y="233" text-anchor="end" font-size="17" font-weight="700" fill="#d9d9dc">ARM MT</text>
-<rect x="150" y="193" width="165" height="72" rx="6" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
+<rect x="150" y="193" width="165" height="72" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
 <text x="232" y="234" text-anchor="middle" font-size="24" font-weight="800" fill="#ff5a14">+10%</text>
-<rect x="331" y="193" width="165" height="72" rx="6" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
+<rect x="331" y="193" width="165" height="72" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
 <text x="414" y="234" text-anchor="middle" font-size="24" font-weight="800" fill="#ff5a14">+16%</text>
-<rect x="512" y="193" width="165" height="72" rx="6" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
+<rect x="512" y="193" width="165" height="72" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
 <text x="594" y="234" text-anchor="middle" font-size="24" font-weight="800" fill="#ff5a14">+10%</text>
-<rect x="693" y="193" width="165" height="72" rx="6" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
+<rect x="693" y="193" width="165" height="72" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
 <text x="776" y="234" text-anchor="middle" font-size="24" font-weight="800" fill="#ff5a14">+16%</text>
 <text x="140" y="321" text-anchor="end" font-size="17" font-weight="700" fill="#d9d9dc">x86 ST</text>
-<rect x="150" y="281" width="165" height="72" rx="6" fill="#1d1d1f" stroke="#8e8e93" stroke-width="1"/>
+<rect x="150" y="281" width="165" height="72" fill="#1d1d1f" stroke="#8e8e93" stroke-width="1"/>
 <text x="232" y="322" text-anchor="middle" font-size="24" font-weight="800" fill="#8e8e93">-8%</text>
-<rect x="331" y="281" width="165" height="72" rx="6" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
+<rect x="331" y="281" width="165" height="72" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
 <text x="414" y="322" text-anchor="middle" font-size="24" font-weight="800" fill="#ff5a14">+5%</text>
-<rect x="512" y="281" width="165" height="72" rx="6" fill="#1d1d1f" stroke="#8e8e93" stroke-width="1"/>
+<rect x="512" y="281" width="165" height="72" fill="#1d1d1f" stroke="#8e8e93" stroke-width="1"/>
 <text x="594" y="322" text-anchor="middle" font-size="24" font-weight="800" fill="#8e8e93">-3%</text>
-<rect x="693" y="281" width="165" height="72" rx="6" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
+<rect x="693" y="281" width="165" height="72" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
 <text x="776" y="322" text-anchor="middle" font-size="24" font-weight="800" fill="#ff5a14">+2%</text>
 <text x="140" y="409" text-anchor="end" font-size="17" font-weight="700" fill="#d9d9dc">x86 MT</text>
-<rect x="150" y="369" width="165" height="72" rx="6" fill="#1d1d1f" stroke="#8e8e93" stroke-width="1"/>
+<rect x="150" y="369" width="165" height="72" fill="#1d1d1f" stroke="#8e8e93" stroke-width="1"/>
 <text x="232" y="410" text-anchor="middle" font-size="24" font-weight="800" fill="#8e8e93">-3%</text>
-<rect x="331" y="369" width="165" height="72" rx="6" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
+<rect x="331" y="369" width="165" height="72" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
 <text x="414" y="410" text-anchor="middle" font-size="24" font-weight="800" fill="#ff5a14">+2%</text>
-<rect x="512" y="369" width="165" height="72" rx="6" fill="#1d1d1f" stroke="#8e8e93" stroke-width="1"/>
+<rect x="512" y="369" width="165" height="72" fill="#1d1d1f" stroke="#8e8e93" stroke-width="1"/>
 <text x="594" y="410" text-anchor="middle" font-size="24" font-weight="800" fill="#8e8e93">-6%</text>
-<rect x="693" y="369" width="165" height="72" rx="6" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
+<rect x="693" y="369" width="165" height="72" fill="#24170f" stroke="#ff5a14" stroke-width="1"/>
 <text x="776" y="410" text-anchor="middle" font-size="24" font-weight="800" fill="#ff5a14">+0%</text>
 <text x="520" y="546" text-anchor="middle" font-size="17" fill="#d7d7d9">ARM: 8/8 wins | x86: 2-bit MT only regression</text>
 </svg>
