@@ -106,8 +106,8 @@ const MAX_INPUT_MAGNITUDE: f32 = 1e16;
 fn first_invalid_coord(values: &[f32], dim: usize) -> Option<(usize, usize, f32)> {
     for (i, x) in values.iter().enumerate() {
         if !x.is_finite() || x.abs() >= MAX_INPUT_MAGNITUDE {
-            let vector_index = if dim == 0 { 0 } else { i / dim };
-            let coord_index = if dim == 0 { i } else { i % dim };
+            let vector_index = i.checked_div(dim).unwrap_or(0);
+            let coord_index = i.checked_rem(dim).unwrap_or(i);
             return Some((vector_index, coord_index, *x));
         }
     }
