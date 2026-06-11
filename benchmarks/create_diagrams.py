@@ -644,8 +644,8 @@ def build_recall_delta_chart():
         ("GloVe 2-bit", recall_r1_delta_pp("glove_2bit")),
         ("GloVe 4-bit", recall_r1_delta_pp("glove_4bit")),
     ]
-    W, H = 1100, 600
-    ml, mr, mt, mb = 150, 80, 112, 58
+    W, H = 1100, 720
+    ml, mr, mt, mb = 150, 80, 180, 70
     pw, ph = W - ml - mr, H - mt - mb
     max_abs = max(abs(v) for _, v in rows) * 1.25
     zero_x = ml + pw / 2
@@ -656,10 +656,11 @@ def build_recall_delta_chart():
         style_block(),
         defs_block(),
         f'{bg_rect()}',
-        f'<text x="{W/2:.0f}" y="42" text-anchor="middle" font-size="28" font-weight="800" fill="{C["title"]}">'
+        f'<text x="{W/2:.0f}" y="46" text-anchor="middle" font-size="28" font-weight="800" fill="{C["title"]}">'
         f'{xe("Recall@1 delta: TurboQuant vs FAISS IndexPQ (pp)")}</text>',
-        f'<text x="{W/2:.0f}" y="70" text-anchor="middle" font-size="17" fill="{C["subtitle"]}">'
+        f'<text x="{W/2:.0f}" y="78" text-anchor="middle" font-size="17" fill="{C["subtitle"]}">'
         f'{xe("Shared turbo-graph / turbovec core | positive = TurboQuant higher recall")}</text>',
+        f'<line x1="120" y1="126" x2="{W - 120}" y2="126" stroke="{C["border"]}" stroke-width="1"/>',
         f'<line x1="{zero_x:.1f}" y1="{mt}" x2="{zero_x:.1f}" y2="{mt + ph}" stroke="{C["baseline"]}" stroke-width="1"/>',
     ]
 
