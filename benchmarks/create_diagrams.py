@@ -1,4 +1,4 @@
-"""Generate benchmark charts as SVG in the turboquant-wasm aesthetic.
+"""Generate README/docs charts as SVG in the turbo-graph cover aesthetic.
 
 Reads JSON files from ./results/ and writes:
   ../docs/arm_speed_st.svg, ../docs/arm_speed_mt.svg
@@ -18,27 +18,37 @@ DOCS_DIR = os.path.join(os.path.dirname(__file__), "..", "docs")
 
 FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
 C = {
-    "title": "#0f172a",
-    "subtitle": "#475569",
-    "label": "#0f172a",
-    "secondary": "#475569",
-    "tick": "#64748b",
-    "axis": "#334155",
-    "grid": "#e5e7eb",
-    "baseline": "#94a3b8",
-    "tq": "#635bff",
-    "tq_stroke": "#4338ca",
-    "tq_text": "#4338ca",
-    "faiss": "#9aa7b6",
-    "fp32": "#9aa7b6",
-    "four_bit": "#1d4ed8",
-    "two_bit": "#635bff",
-    "tq_2": "#635bff",
-    "tq_4": "#0f766e",
-    "faiss_2": "#9aa7b6",
-    "faiss_4": "#64748b",
-    "turbo": "#635bff",
-    "graph": "#15803d",
+    "bg": "#000000",
+    "panel": "#0d0d10",
+    "panel_alt": "#141418",
+    "border": "#2d2d35",
+    "title": "#ffffff",
+    "subtitle": "#8d8d96",
+    "label": "#f5f5f7",
+    "secondary": "#9c9ca6",
+    "tick": "#777782",
+    "axis": "#d7d7df",
+    "grid": "#202026",
+    "baseline": "#4b4b56",
+    "tq": "#8b6cff",
+    "tq_stroke": "#c5b7ff",
+    "tq_text": "#d8d0ff",
+    "faiss": "#6f717c",
+    "fp32": "#5f626d",
+    "four_bit": "#72d7ff",
+    "two_bit": "#a78bfa",
+    "tq_2": "#8b6cff",
+    "tq_4": "#72d7ff",
+    "faiss_2": "#777782",
+    "faiss_4": "#4f515c",
+    "turbo": "#8b6cff",
+    "graph": "#72d7ff",
+    "gold": "#ffd86b",
+    "coral": "#ff8d7a",
+    "win_fill": "#10251f",
+    "loss_fill": "#2a1517",
+    "win": "#72ffb8",
+    "loss": "#ff8d7a",
 }
 
 
@@ -73,6 +83,7 @@ def nice_ceil(value):
 def style_block():
     return (
         f'<style>\n'
+        f'  text {{ font-family: {FONT}; }}\n'
         f'  .title {{ font: 700 20px {FONT}; fill: {C["title"]}; }}\n'
         f'  .subtitle {{ font: 400 12px {FONT}; fill: {C["subtitle"]}; }}\n'
         f'  .panel {{ font: 700 14px {FONT}; fill: {C["title"]}; }}\n'
@@ -85,6 +96,10 @@ def style_block():
         f'  .legend {{ font: 600 12px {FONT}; fill: {C["label"]}; }}\n'
         f'</style>'
     )
+
+
+def bg_rect():
+    return f'<rect width="100%" height="100%" fill="{C["bg"]}" />'
 
 
 def grid_lines(px, py, pw, ph, y_lo, y_hi, fmt, step_count=5):
@@ -197,7 +212,7 @@ def write_speed_panel(arch, hw_label, thread_key, thread_label, tick_fmt, value_
     svg = f"""<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-label="Search Latency — {xe(hw_label)} — {xe(thread_label)}">
   {style_block()}
-  <rect width="100%" height="100%" fill="#ffffff" />
+  {bg_rect()}
   <text x="{margin["left"]}" y="32" class="title">Search Latency — {xe(hw_label)} — {xe(thread_label)}</text>
   <text x="{margin["left"]}" y="52" class="subtitle">100K vectors, 1K queries, k=64, median of 5 runs</text>
   {body}
@@ -294,7 +309,7 @@ def write_recall_panel(dim_key, dim_label, filename, y_lo=0.85):
     svg = f"""<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-label="Recall — {xe(dim_label)}">
   {style_block()}
-  <rect width="100%" height="100%" fill="#ffffff" />
+  {bg_rect()}
   <text x="{margin["left"]}" y="32" class="title">Recall — {xe(dim_label)}</text>
   <text x="{margin["left"]}" y="52" class="subtitle">100K vectors, k=64 search. recall@1@k measures how often the true top-1 result appears in the top-k returned.</text>
   {body}
@@ -379,7 +394,7 @@ def write_compression_chart(filename):
     svg = f"""<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-label="Index Size — TurboQuant">
   {style_block()}
-  <rect width="100%" height="100%" fill="#ffffff" />
+  {bg_rect()}
   <text x="{margin["left"]}" y="32" class="title">Index Size — 100K vectors</text>
   <text x="{margin["left"]}" y="52" class="subtitle">TurboQuant packs vectors ~16× smaller than FP32 at 2-bit with comparable recall</text>
   {body}
@@ -391,7 +406,8 @@ def write_compression_chart(filename):
     print(f"wrote {out}")
 
 
-def arrow_defs(marker_id="arr", color="#525252"):
+def arrow_defs(marker_id="arr", color=None):
+    color = color or C["baseline"]
     return (
         f'<defs><marker id="{marker_id}" markerWidth="8" markerHeight="8" '
         f'refX="7" refY="4" orient="auto">'
@@ -399,16 +415,17 @@ def arrow_defs(marker_id="arr", color="#525252"):
     )
 
 
-def hline(x1, y, x2, color="#525252", w=1.5, marker_end=None):
+def hline(x1, y, x2, color=None, w=1.5, marker_end=None):
+    color = color or C["baseline"]
     me = f' marker-end="url(#{marker_end})"' if marker_end else ""
     return f'<line x1="{x1}" y1="{y}" x2="{x2}" y2="{y}" stroke="{color}" stroke-width="{w}"{me}/>'
 
 
 def box(x, y, w, h, fill, stroke, label, sub=None, fs=11, sub_fs=9):
     if fill in (C["turbo"], C["graph"]):
-        text_fill, sub_fill = "#ffffff", "#ecfdf5"
+        text_fill, sub_fill = C["title"], "#f3f0ff" if fill == C["turbo"] else "#e5fbff"
     else:
-        text_fill, sub_fill = "#171717", "#525252"
+        text_fill, sub_fill = C["title"], C["secondary"]
     parts = [
         f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="6" fill="{fill}" stroke="{stroke}" stroke-width="1.2"/>',
         f'<text x="{x + w/2:.1f}" y="{y + (h/2 - 4 if sub else h/2 + 4):.1f}" '
@@ -422,7 +439,8 @@ def box(x, y, w, h, fill, stroke, label, sub=None, fs=11, sub_fs=9):
     return "\n".join(parts)
 
 
-def vline(x, y1, y2, color="#525252", w=1.5, marker_end=None):
+def vline(x, y1, y2, color=None, w=1.5, marker_end=None):
+    color = color or C["baseline"]
     me = f' marker-end="url(#{marker_end})"' if marker_end else ""
     return f'<line x1="{x}" y1="{y1}" x2="{x}" y2="{y2}" stroke="{color}" stroke-width="{w}"{me}/>'
 
@@ -433,10 +451,10 @@ def build_stack_diagram():
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">',
         style_block(),
         arrow_defs(),
-        f'<rect width="100%" height="100%" fill="#ffffff"/>',
-        f'<text x="{W/2:.0f}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#171717">'
+        f'{bg_rect()}',
+        f'<text x="{W/2:.0f}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="{C["title"]}">'
         f'{xe("Where turbo-graph sits on top of turbovec")}</text>',
-        f'<text x="{W/2:.0f}" y="48" text-anchor="middle" font-size="11" fill="#737373">'
+        f'<text x="{W/2:.0f}" y="48" text-anchor="middle" font-size="11" fill="{C["subtitle"]}">'
         f'{xe("Same TurboQuant core; graph layer adds metadata, cache, and rerank")}</text>',
     ]
 
@@ -445,15 +463,15 @@ def build_stack_diagram():
     y0 = 70
 
     turbovec_layers = [
-        (C["turbo"], "#171717", "turbovec", "TurboQuant ANN core"),
-        (C["turbo"], "#171717", "allowlist / mask", "in-kernel candidate filter"),
-        (C["turbo"], "#171717", "post-filter", "optional metadata pass"),
+        (C["turbo"], C["tq_stroke"], "turbovec", "TurboQuant ANN core"),
+        (C["coral"], "#ffd0c8", "allowlist / mask", "in-kernel candidate filter"),
+        (C["gold"], "#fff0aa", "post-filter", "optional metadata pass"),
     ]
     graph_layers = [
-        (C["turbo"], "#171717", "turbovec", "same TurboQuant core"),
-        (C["graph"], "#15803d", "GraphMemoryIndex", "graph + metadata + cache"),
-        (C["graph"], "#15803d", "query assembly", "graph + tags + source + time + candidates"),
-        (C["graph"], "#15803d", "rerank + telemetry", "optional second stage"),
+        (C["turbo"], C["tq_stroke"], "turbovec", "same TurboQuant core"),
+        (C["graph"], "#c9f5ff", "GraphMemoryIndex", "graph + metadata + cache"),
+        (C["gold"], "#fff0aa", "query assembly", "graph + tags + source + time + candidates"),
+        (C["coral"], "#ffd0c8", "rerank + telemetry", "optional second stage"),
     ]
 
     def draw_stack(x, layers, y_start):
@@ -464,13 +482,13 @@ def build_stack_diagram():
             els.append(box(bx, y, box_w, box_h, fill, stroke, label, sub))
             if i < len(layers) - 1:
                 cx = x + col_w / 2
-                els.append(hline(cx - 12, y + box_h + 2, cx + 12, color="#a3a3a3", w=1.2))
+                els.append(hline(cx - 12, y + box_h + 2, cx + 12, color=C["baseline"], w=1.2))
             y += box_h + gap + 6
         return els, y
 
     svg.append(
         f'<text x="{lx + col_w/2:.0f}" y="{y0 - 8}" text-anchor="middle" '
-        f'font-size="13" font-weight="700" fill="#171717">{xe("turbovec")}</text>'
+        f'font-size="13" font-weight="700" fill="{C["title"]}">{xe("turbovec")}</text>'
     )
     svg.append(
         f'<text x="{rx + col_w/2:.0f}" y="{y0 - 8}" text-anchor="middle" '
@@ -485,22 +503,22 @@ def build_stack_diagram():
     mid_y = y0 + (len(turbovec_layers) * (box_h + gap + 6) - gap - 6) / 2 + box_h / 2
     svg.extend(
         [
-            hline(lx + col_w - 20, mid_y, rx + 20, color="#737373", w=1.5, marker_end="arr"),
-            f'<text x="{W/2:.0f}" y="{mid_y - 10:.0f}" text-anchor="middle" font-size="10" fill="#737373">'
+            hline(lx + col_w - 20, mid_y, rx + 20, color=C["secondary"], w=1.5, marker_end="arr"),
+            f'<text x="{W/2:.0f}" y="{mid_y - 10:.0f}" text-anchor="middle" font-size="10" fill="{C["subtitle"]}">'
             f'{xe("shared core")}</text>',
         ]
     )
 
     note_y = max(y_end_l, y_end_r) + 16
     svg.append(
-        f'<rect x="40" y="{note_y:.0f}" width="840" height="52" rx="8" fill="#fafafa" stroke="#e5e5e5"/>'
+        f'<rect x="40" y="{note_y:.0f}" width="840" height="52" rx="8" fill="{C["panel"]}" stroke="{C["border"]}"/>'
     )
     svg.append(
-        f'<text x="60" y="{note_y + 20:.0f}" font-size="11" fill="#525252">'
+        f'<text x="60" y="{note_y + 20:.0f}" font-size="11" fill="{C["secondary"]}">'
         f'{xe("turbo-graph does not replace allowlist/mask; it composes graph constraints with kernel filters.")}</text>'
     )
     svg.append(
-        f'<text x="60" y="{note_y + 38:.0f}" font-size="11" fill="#525252">'
+        f'<text x="60" y="{note_y + 38:.0f}" font-size="11" fill="{C["secondary"]}">'
         f'{xe("Use turbovec alone for pure ANN; add turbo-graph when you need structured memory over vectors.")}</text>'
     )
     svg.append("</svg>")
@@ -513,8 +531,8 @@ def build_query_paths_diagram():
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">',
         style_block(),
         arrow_defs(),
-        f'<rect width="100%" height="100%" fill="#ffffff"/>',
-        f'<text x="{W/2:.0f}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#171717">'
+        f'{bg_rect()}',
+        f'<text x="{W/2:.0f}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="{C["title"]}">'
         f'{xe("Query path: turbovec vs turbo-graph")}</text>',
     ]
 
@@ -535,26 +553,26 @@ def build_query_paths_diagram():
         ny = y0 + bh + 28
         els.append(
             f'<rect x="{x + 20:.0f}" y="{ny:.0f}" width="{panel_w - 40:.0f}" height="44" rx="6" '
-            f'fill="#fafafa" stroke="#e5e5e5"/>'
+            f'fill="{C["panel"]}" stroke="{C["border"]}"/>'
         )
         els.append(
-            f'<text x="{x + panel_w/2:.0f}" y="{ny + 26:.0f}" text-anchor="middle" font-size="10" fill="#525252">'
+            f'<text x="{x + panel_w/2:.0f}" y="{ny + 26:.0f}" text-anchor="middle" font-size="10" fill="{C["secondary"]}">'
             f'{xe(note)}</text>'
         )
         return els
 
     turbovec_steps = [
-        ("query", C["turbo"], "#171717"),
-        ("allowlist", C["turbo"], "#171717"),
-        ("SIMD scan", C["turbo"], "#171717"),
-        ("top-k", C["turbo"], "#171717"),
+        ("query", C["turbo"], C["tq_stroke"]),
+        ("allowlist", C["coral"], "#ffd0c8"),
+        ("SIMD scan", C["gold"], "#fff0aa"),
+        ("top-k", C["turbo"], C["tq_stroke"]),
     ]
     graph_steps = [
-        ("query", C["graph"], "#15803d"),
-        ("graph view", C["graph"], "#15803d"),
-        ("metadata", C["graph"], "#15803d"),
-        ("candidates", C["graph"], "#15803d"),
-        ("rerank", C["graph"], "#15803d"),
+        ("query", C["turbo"], C["tq_stroke"]),
+        ("graph view", C["graph"], "#c9f5ff"),
+        ("metadata", C["gold"], "#fff0aa"),
+        ("candidates", C["coral"], "#ffd0c8"),
+        ("rerank", C["turbo"], C["tq_stroke"]),
     ]
 
     svg.extend(
@@ -563,7 +581,7 @@ def build_query_paths_diagram():
             "turbovec",
             turbovec_steps,
             "Filter inside kernel; optional post-filter on metadata",
-            "#171717",
+            C["title"],
             panel_w=440,
         )
     )
@@ -607,12 +625,12 @@ def build_recall_delta_chart():
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">',
         style_block(),
-        f'<rect width="100%" height="100%" fill="#ffffff"/>',
-        f'<text x="{W/2:.0f}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#171717">'
+        f'{bg_rect()}',
+        f'<text x="{W/2:.0f}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="{C["title"]}">'
         f'{xe("Recall@1 delta: TurboQuant vs FAISS IndexPQ (pp)")}</text>',
-        f'<text x="{W/2:.0f}" y="46" text-anchor="middle" font-size="10" fill="#737373">'
+        f'<text x="{W/2:.0f}" y="46" text-anchor="middle" font-size="10" fill="{C["subtitle"]}">'
         f'{xe("Shared turbo-graph / turbovec core | positive = TurboQuant higher recall")}</text>',
-        f'<line x1="{zero_x:.1f}" y1="{mt}" x2="{zero_x:.1f}" y2="{mt + ph}" stroke="#a3a3a3" stroke-width="1"/>',
+        f'<line x1="{zero_x:.1f}" y1="{mt}" x2="{zero_x:.1f}" y2="{mt + ph}" stroke="{C["baseline"]}" stroke-width="1"/>',
     ]
 
     bar_h = ph / len(rows) * 0.55
@@ -626,18 +644,18 @@ def build_recall_delta_chart():
             x, fill = zero_x - bw, C["faiss"]
         svg.append(f'<rect x="{x:.1f}" y="{cy - bar_h/2:.1f}" width="{bw:.1f}" height="{bar_h:.1f}" rx="3" fill="{fill}"/>')
         svg.append(
-            f'<text x="{ml - 10:.0f}" y="{cy + 4:.0f}" text-anchor="end" font-size="11" fill="#404040">{xe(label)}</text>'
+            f'<text x="{ml - 10:.0f}" y="{cy + 4:.0f}" text-anchor="end" font-size="11" fill="{C["axis"]}">{xe(label)}</text>'
         )
         tx = (x + bw + 6) if val >= 0 else (x - 6)
         anchor = "start" if val >= 0 else "end"
         sign = "+" if val >= 0 else ""
         svg.append(
-            f'<text x="{tx:.1f}" y="{cy + 4:.0f}" text-anchor="{anchor}" font-size="10" font-weight="600" fill="#171717">'
+            f'<text x="{tx:.1f}" y="{cy + 4:.0f}" text-anchor="{anchor}" font-size="10" font-weight="600" fill="{C["title"]}">'
             f'{xe(f"{sign}{val:.2f} pp")}</text>'
         )
 
     svg.append(
-        f'<text x="{zero_x:.0f}" y="{H - 12:.0f}" text-anchor="middle" font-size="10" fill="#737373">'
+        f'<text x="{zero_x:.0f}" y="{H - 12:.0f}" text-anchor="middle" font-size="10" fill="{C["subtitle"]}">'
         f'{xe("0")}</text>'
     )
     svg.append("</svg>")
@@ -666,32 +684,32 @@ def build_speed_grid_chart():
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">',
         style_block(),
-        f'<rect width="100%" height="100%" fill="#ffffff"/>',
-        f'<text x="{W/2:.0f}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#171717">'
+        f'{bg_rect()}',
+        f'<text x="{W/2:.0f}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="{C["title"]}">'
         f'{xe("Speed gain: TurboQuant vs FAISS IndexPQFastScan")}</text>',
-        f'<text x="{W/2:.0f}" y="46" text-anchor="middle" font-size="10" fill="#737373">'
+        f'<text x="{W/2:.0f}" y="46" text-anchor="middle" font-size="10" fill="{C["subtitle"]}">'
         f'{xe("Shared core | green = TurboQuant faster (% latency saved)")}</text>',
     ]
 
     for j, (col_label, _, _) in enumerate(datasets):
         cx = ml + j * (cell_w + gap) + cell_w / 2
         svg.append(
-            f'<text x="{cx:.0f}" y="{mt - 12:.0f}" text-anchor="middle" font-size="10" font-weight="600" fill="#404040">'
+            f'<text x="{cx:.0f}" y="{mt - 12:.0f}" text-anchor="middle" font-size="10" font-weight="600" fill="{C["axis"]}">'
             f'{xe(col_label)}</text>'
         )
 
     for i, (row_label, arch, mode) in enumerate(configs):
         ry = mt + i * (cell_h + gap)
         svg.append(
-            f'<text x="{ml - 10:.0f}" y="{ry + cell_h/2 + 4:.0f}" text-anchor="end" font-size="11" font-weight="600" fill="#404040">'
+            f'<text x="{ml - 10:.0f}" y="{ry + cell_h/2 + 4:.0f}" text-anchor="end" font-size="11" font-weight="600" fill="{C["axis"]}">'
             f'{xe(row_label)}</text>'
         )
         for j, (_, dataset, bits) in enumerate(datasets):
             cx = ml + j * (cell_w + gap)
             gain = speed_gain_pct(arch, dataset, bits, mode)
-            fill = "#dcfce7" if gain >= 0 else "#fee2e2"
-            stroke = "#15803d" if gain >= 0 else "#b91c1c"
-            text_color = "#15803d" if gain >= 0 else "#b91c1c"
+            fill = C["win_fill"] if gain >= 0 else C["loss_fill"]
+            stroke = C["win"] if gain >= 0 else C["loss"]
+            text_color = C["win"] if gain >= 0 else C["loss"]
             sign = "+" if gain >= 0 else ""
             svg.append(
                 f'<rect x="{cx:.0f}" y="{ry:.0f}" width="{cell_w:.0f}" height="{cell_h:.0f}" '
@@ -703,7 +721,7 @@ def build_speed_grid_chart():
             )
 
     svg.append(
-        f'<text x="{W/2:.0f}" y="{H - 14:.0f}" text-anchor="middle" font-size="10" fill="#737373">'
+        f'<text x="{W/2:.0f}" y="{H - 14:.0f}" text-anchor="middle" font-size="10" fill="{C["subtitle"]}">'
         f'{xe("ARM: 8/8 wins | x86: 2-bit MT only regression")}</text>'
     )
     svg.append("</svg>")
@@ -754,15 +772,15 @@ def build_selectivity_chart():
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">',
         style_block(),
-        f'<rect width="100%" height="100%" fill="#ffffff"/>',
-        f'<text x="{W/2:.0f}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#171717">'
+        f'{bg_rect()}',
+        f'<text x="{W/2:.0f}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="{C["title"]}">'
         f'{xe("graph_view_bench: latency by selectivity (ms)")}</text>',
-        f'<text x="{W/2:.0f}" y="46" text-anchor="middle" font-size="10" fill="#737373">'
+        f'<text x="{W/2:.0f}" y="46" text-anchor="middle" font-size="10" fill="{C["subtitle"]}">'
         f'{xe("Lower is better | 1M vectors, M3 Max")}</text>',
     ]
     svg.extend(simple_value_grid(ml, mt, pw, ph, y_max, steps=6))
 
-    colors = [("#171717", "bool filter"), ("#525252", "slot_mask"), ("#15803d", "graph_view")]
+    colors = [(C["coral"], "bool filter"), (C["gold"], "slot_mask"), (C["graph"], "graph_view")]
     for gi, (label, b, s, g) in enumerate(SELECTIVITY_ROWS):
         gx = ml + gi * group_w + group_w / 2
         for si, val in enumerate([b, s, g]):
@@ -773,7 +791,7 @@ def build_selectivity_chart():
                 f'rx="2" fill="{colors[si][0]}"/>'
             )
         svg.append(
-            f'<text x="{gx:.0f}" y="{mt + ph + 22:.0f}" text-anchor="middle" font-size="10" fill="#404040">'
+            f'<text x="{gx:.0f}" y="{mt + ph + 22:.0f}" text-anchor="middle" font-size="10" fill="{C["axis"]}">'
             f'{xe(label)}</text>'
         )
 
@@ -782,7 +800,7 @@ def build_selectivity_chart():
         lx = ml + i * 180
         svg.append(f'<rect x="{lx:.0f}" y="{leg_y:.0f}" width="12" height="12" rx="2" fill="{color}"/>')
         svg.append(
-            f'<text x="{lx + 18:.0f}" y="{leg_y + 10:.0f}" font-size="10" fill="#404040">{xe(name)}</text>'
+            f'<text x="{lx + 18:.0f}" y="{leg_y + 10:.0f}" font-size="10" fill="{C["axis"]}">{xe(name)}</text>'
         )
     svg.append("</svg>")
     return "\n".join(svg)
@@ -795,22 +813,22 @@ def build_migration_flowchart():
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">',
         style_block(),
         arrow_defs(),
-        f'<rect width="100%" height="100%" fill="#ffffff"/>',
-        f'<text x="{cx:.0f}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#171717">'
+        f'{bg_rect()}',
+        f'<text x="{cx:.0f}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="{C["title"]}">'
         f'{xe("Migration decision flow")}</text>',
     ]
 
     def diamond(cx, cy, w, h, text):
         pts = f"{cx},{cy - h/2} {cx + w/2},{cy} {cx},{cy + h/2} {cx - w/2},{cy}"
         return (
-            f'<polygon points="{pts}" fill="#fafafa" stroke="#525252" stroke-width="1.2"/>'
-            f'<text x="{cx:.0f}" y="{cy + 4:.0f}" text-anchor="middle" font-size="10" fill="#171717">'
+            f'<polygon points="{pts}" fill="{C["panel"]}" stroke="{C["border"]}" stroke-width="1.2"/>'
+            f'<text x="{cx:.0f}" y="{cy + 4:.0f}" text-anchor="middle" font-size="10" fill="{C["title"]}">'
             f'{xe(text)}</text>'
         )
 
     nodes = []
     y = 52
-    nodes.append(box(cx - 130, y, 260, 40, "#fafafa", "#525252", "Need ANN vector search?", fs=11))
+    nodes.append(box(cx - 130, y, 260, 40, C["panel"], C["border"], "Need ANN vector search?", fs=11))
     y += 52
     nodes.append(vline(cx, y - 10, y + 8, marker_end="arr"))
     y += 18
@@ -823,30 +841,30 @@ def build_migration_flowchart():
     left_cx, right_cx = 210, 610
     nodes.append(hline(left_cx, y, cx, marker_end="arr"))
     nodes.append(hline(cx, y, right_cx, marker_end="arr"))
-    nodes.append(f'<text x="{left_cx + 28:.0f}" y="{y - 8:.0f}" font-size="10" fill="#737373">{xe("no")}</text>')
-    nodes.append(f'<text x="{right_cx - 36:.0f}" y="{y - 8:.0f}" font-size="10" fill="#737373">{xe("yes")}</text>')
+    nodes.append(f'<text x="{left_cx + 28:.0f}" y="{y - 8:.0f}" font-size="10" fill="{C["subtitle"]}">{xe("no")}</text>')
+    nodes.append(f'<text x="{right_cx - 36:.0f}" y="{y - 8:.0f}" font-size="10" fill="{C["subtitle"]}">{xe("yes")}</text>')
 
     y_box = y + 18
     nodes.append(vline(left_cx, y, y_box, marker_end="arr"))
     nodes.append(vline(right_cx, y, y_box, marker_end="arr"))
-    nodes.append(box(110, y_box, 200, 48, C["turbo"], "#171717", "Stay on turbovec", "pure ANN + allowlist/mask"))
-    nodes.append(box(510, y_box, 200, 48, C["graph"], "#15803d", "Adopt turbo-graph", "GraphMemoryIndex layer"))
+    nodes.append(box(110, y_box, 200, 48, C["turbo"], C["tq_stroke"], "Stay on turbovec", "pure ANN + allowlist/mask"))
+    nodes.append(box(510, y_box, 200, 48, C["graph"], "#c9f5ff", "Adopt turbo-graph", "GraphMemoryIndex layer"))
 
     y2 = y_box + 58
     nodes.append(vline(610, y_box + 48, y2, marker_end="arr"))
     nodes.append(diamond(610, y2 + 26, 250, 52, "Need cache, rerank, or telemetry?"))
     y3 = y2 + 58
     nodes.append(vline(610, y3, y3 + 16, marker_end="arr"))
-    nodes.append(box(510, y3 + 22, 200, 44, C["graph"], "#15803d", "Full migration", "graph index + cache + rerank"))
+    nodes.append(box(510, y3 + 22, 200, 44, C["graph"], "#c9f5ff", "Full migration", "graph index + cache + rerank"))
 
     foot_y = H - 66
-    nodes.append(f'<rect x="40" y="{foot_y:.0f}" width="740" height="58" rx="8" fill="#fafafa" stroke="#e5e5e5"/>')
+    nodes.append(f'<rect x="40" y="{foot_y:.0f}" width="740" height="58" rx="8" fill="{C["panel"]}" stroke="{C["border"]}"/>')
     nodes.append(
-        f'<text x="60" y="{foot_y + 22:.0f}" font-size="10" fill="#525252">'
+        f'<text x="60" y="{foot_y + 22:.0f}" font-size="10" fill="{C["secondary"]}">'
         f'{xe("Checklist: graph edges, tag/source/time metadata, candidate assembly, cache, rerank, telemetry")}</text>'
     )
     nodes.append(
-        f'<text x="60" y="{foot_y + 40:.0f}" font-size="10" fill="#525252">'
+        f'<text x="60" y="{foot_y + 40:.0f}" font-size="10" fill="{C["secondary"]}">'
         f'{xe("Shared TurboQuant core is identical; migration adds the graph memory layer on top.")}</text>'
     )
 
