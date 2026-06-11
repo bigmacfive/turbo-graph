@@ -12,24 +12,41 @@
 
 # turbo-graph
 
-**turbovec 호환 TurboQuant 코어 위에, 제약이 많은 RAG용 graph memory를 얹은 검색 엔진입니다.**
+**turbovec이 임베딩을 작게 만들었다면, turbo-graph는 제약 많은 검색을 운영 가능하게 만듭니다.**
 
-[turbovec](https://github.com/RyanCodrai/turbovec)는 임베딩을 좌표당 2-4bit로 압축하고, 별도 학습 없이 벡터를 넣고, SIMD 커널에서 빠르게 검색합니다. **turbo-graph는 그 코어를 그대로 쓰면서 RAG 서비스에서 번거로운 부분을 index 안으로 옮깁니다.** 가중치 그래프, tag/source/time 뷰, 캐시된 `SlotMask`, 그래프 rerank, Python graph memory, 쿼리 텔레메트리를 한 레이어에서 다룹니다.
+RAG 쿼리가 더 이상 `top_k` 하나가 아니라:
 
-> **선택 기준:** 필터가 가볍고 top-k만 빠르면 **turbovec**로 충분합니다. tenant/tag/source/time/그래프 이웃/캐시/설명이 검색 품질을 좌우하면 **turbo-graph**가 맞습니다.
+```text
+tenant ∩ graph ∩ tag ∩ source ∩ time ∩ BM25 candidates ∩ vector search
+```
 
-## 왜 필요한가
+라면, 이 view를 요청마다 Python에서 다시 만들 필요가 없습니다.
 
-벡터 검색은 빠릅니다. 문제는 그 앞뒤입니다.
+turbo-graph는 turbovec/TurboQuant 코어를 유지하면서 다음을 더합니다.
 
-- tenant, source, tag, time window를 매번 조합한다.
-- 검색 전에 그래프 이웃을 넓히고, 검색 뒤에 다시 rerank한다.
-- 같은 제약이 반복되는데 매번 id list를 새로 만든다.
-- 운영 중에 “왜 이 문서가 나왔는지” trace와 cache hit를 봐야 한다.
+- graph memory
+- tag/source/time indexed views
+- cached `SlotMask` compilation
+- graph-aware rerank
+- explain/cache telemetry
+- Python `GraphMemoryIndex`
 
-turbo-graph는 이 작업을 애플리케이션 코드 밖으로 꺼냅니다. `graph ∩ tag ∩ source ∩ time ∩ candidates`를 view로 만들고, 재사용하고, 설명할 수 있게 합니다.
+## 언제 써야 하나요?
 
-**목차:** [왜 필요한가](#왜-필요한가) · [turbovec과의 관계](#turbovec과의-관계) · [상세 비교](#turbovec-vs-turbo-graph-상세-비교) · [벤치마크](#벤치마크) · [설치](#설치) · [빠른 시작](#빠른-시작) · [문서](#문서)
+**turbovec**를 쓰면 좋은 경우:
+
+- 대부분 flat global top-k만 필요하다
+- allowlist를 싸게 만들 수 있다
+- 가장 작은 API가 좋다
+
+**turbo-graph**를 쓰면 좋은 경우:
+
+- 대부분의 쿼리에 tenant/source/tag/time 제약이 붙는다
+- vector search 전에 그래프 이웃을 확장한다
+- 같은 filtered view가 hot query에서 반복된다
+- explain report와 cache telemetry가 필요하다
+
+**목차:** [언제 써야 하나요?](#언제-써야-하나요) · [turbovec과의 관계](#turbovec과의-관계) · [상세 비교](#turbovec-vs-turbo-graph-상세-비교) · [벤치마크](#벤치마크) · [설치](#설치) · [빠른 시작](#빠른-시작) · [문서](#문서)
 
 ---
 

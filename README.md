@@ -12,19 +12,40 @@
 
 # turbo-graph
 
-**A turbovec-compatible TurboQuant core, plus production graph memory for constrained RAG.**
+**turbovec made embeddings small. turbo-graph makes constrained retrieval
+operational.**
 
-[turbovec](https://github.com/RyanCodrai/turbovec) compresses embeddings to
-2-4 bits per dimension, ingests vectors without a separate training step, and
-searches them with SIMD kernels. **turbo-graph keeps that lineage and moves
-the hard RAG orchestration into the index**: weighted graph edges,
-tag/source/time views, cached `SlotMask` compilation, graph rerank, Python
-graph memory, and query telemetry.
+When your RAG query is no longer just `top_k`, but:
 
-> **Operational rule:** choose **turbo-graph** when constraints are the product:
-> semantic similarity plus tenant, tag, source, time, graph neighbors, explain
-> reports, and cache reuse. Choose **turbovec alone** when you mostly run flat
-> global top-k or a cheap id allowlist.
+```text
+tenant ∩ graph ∩ tag ∩ source ∩ time ∩ BM25 candidates ∩ vector search
+```
+
+do not rebuild that view in Python on every request.
+
+turbo-graph keeps the turbovec/TurboQuant core and adds:
+
+- graph memory
+- tag/source/time indexed views
+- cached `SlotMask` compilation
+- graph-aware rerank
+- explain/cache telemetry
+- Python `GraphMemoryIndex`
+
+## When should I use this?
+
+Use **turbovec** when:
+
+- you mostly need flat global top-k
+- your allowlist is cheap to build
+- you want the smallest API
+
+Use **turbo-graph** when:
+
+- most queries carry tenant/source/tag/time constraints
+- you expand graph neighborhoods before vector search
+- the same filtered views repeat across hot queries
+- you need explain reports and cache telemetry
 
 **Contents:** [How this relates to turbovec](#how-this-relates-to-turbovec) ·
 [Comparison](#turbovec-vs-turbo-graph) · [Benchmarks](#benchmarks) ·
