@@ -463,7 +463,6 @@ unsafe fn search_multi_query_avx2(
 // inlined AVX2 inner-loop body at the end. Avoids any masked AVX-512 logic.
 
 #[cfg(target_arch = "x86_64")]
-#[allow(clippy::incompatible_msrv)]
 #[target_feature(
     enable = "avx2",
     enable = "fma",

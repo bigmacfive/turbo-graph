@@ -20,6 +20,10 @@ default = []
 serde = ["dep:serde"]
 
 [lints.clippy]
+# The AVX-512 path is runtime-gated, but several intrinsic bindings were
+# stabilized after the declared MSRV. Keep the MSRV promise for normal builds
+# while allowing Clippy to check those target-specific symbols in CI.
+incompatible_msrv = "allow"
 doc_lazy_continuation = "allow"
 empty_line_after_doc_comments = "allow"
 misnamed_getters = "allow"
