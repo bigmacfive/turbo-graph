@@ -625,7 +625,7 @@ impl IdMapIndex {
             };
             k.min(self.inner.len()).min(n_allowed)
         } else {
-            scores.len() / nq
+            scores.len().checked_div(nq).unwrap_or(0)
         };
 
         let scores_arr = numpy::ndarray::Array2::from_shape_vec((nq, effective_k), scores)
