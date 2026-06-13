@@ -278,6 +278,9 @@ searching globally and dropping disallowed results afterwards.
 - `graph_view_bench` now reports both raw selectivity sweeps and preset-driven
   graph+metadata+rerank workloads, including selected slots, active blocks,
   prefetch size, block skips, and cache entries.
+- The same CSV includes `mask_build`, `view_compile`, and `constrained` phases so
+  release artifacts can separate one-shot graph+metadata compilation from warm
+  cached search and candidate intersection.
 - `graph_view_bench` also reports global overfetch plus post-filter recall
   against direct graph-view masked search, showing when post-filtering misses
   the view-local top-k.

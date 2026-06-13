@@ -2224,6 +2224,50 @@ fn cache_stats_trim_and_clear_operational_caches() {
 }
 
 #[test]
+fn cache_trimming_is_deterministic_for_metadata_masks() {
+    let dim = 64;
+    let n = 6;
+    let data = normalized_vectors(n, dim, 0x6A9A_2019);
+    let mut memory = GraphMemoryIndex::new(dim, 4).unwrap();
+    let records: Vec<MemoryRecord> = (0..n)
+        .map(|i| {
+            let source = match i % 3 {
+                0 => "alpha",
+                1 => "beta",
+                _ => "gamma",
+            };
+            MemoryRecord::new(i as u64, format!("trim node {i}"), ["doc"]).with_source(source)
+        })
+        .collect();
+    memory.add_records(&data, records).unwrap();
+
+    memory.source_view_mask("alpha");
+    memory.source_view_mask("beta");
+    memory.source_view_mask("gamma");
+    assert_eq!(memory.cache_stats().source_masks, 3);
+
+    memory.trim_metadata_caches(1);
+    let trimmed = memory.cache_stats();
+    assert_eq!(trimmed.source_masks, 1);
+
+    let before_gamma = memory.cache_stats();
+    memory.source_view_mask("gamma");
+    let after_gamma = memory.cache_stats();
+    assert_eq!(
+        after_gamma.source_mask_hits,
+        before_gamma.source_mask_hits + 1,
+        "deterministic trim should retain the lexicographically last source key"
+    );
+
+    memory.source_view_mask("alpha");
+    let after_alpha = memory.cache_stats();
+    assert_eq!(
+        after_alpha.source_mask_misses,
+        after_gamma.source_mask_misses + 1
+    );
+}
+
+#[test]
 fn preset_cache_budgets_scale_and_trim_individual_caches() {
     let dim = 64;
     let n = 256;

@@ -85,7 +85,7 @@ Median of 5 runs. Scripts: `benchmarks/suite/speed_*`.
 | 3072 | 4 | x86 | st | 5.342 | 5.474 | +2.4% |
 | 3072 | 4 | x86 | mt | 1.177 | 1.177 | 0.0% |
 
-**Note:** Recall baseline (IndexPQ + train) ≠ Speed baseline (FastScan). Do not merge into one “FAISS wins/loses” headline.
+**Note:** Recall baseline (IndexPQ + train) ≠ Speed baseline (FastScan). Do not merge into one “FAISS wins/loses” claim.
 
 ### 3.3 Compression (100K)
 
@@ -100,7 +100,8 @@ Source: `benchmarks/results/compression.json`
 
 ### 3.4 turbo-graph layer — `graph_view_bench`
 
-Synthetic 16,384 × 64, k=10, release, 3 iters.
+Synthetic 16,384 x 64, k=10, release, 3 measured iters after 3 warmup iters
+for steady-state loops. Cold compile is a one-shot measurement.
 
 ```bash
 cargo run -p turbo-graph --release --example graph_view_bench -- --iters 3 --csv /tmp/graph-view-bench.csv
@@ -109,19 +110,29 @@ cargo run -p turbo-graph --release --example graph_view_bench_summary -- /tmp/gr
 
 #### Selectivity
 
-| Sel. | bool | slot_mask | graph_view |
-|---:|---:|---:|---:|
-| 0.10% | 0.014 | 0.007 | 0.016 |
-| 1.00% | 0.013 | 0.007 | 0.010 |
-| 100% | 0.241 | 0.094 | 0.053 |
+| Sel. | mask build | cold compile | warm compile | slot_mask | graph_view |
+|---:|---:|---:|---:|---:|---:|
+| 0.10% | 0.000 | 0.007 | 0.000 | 0.008 | 0.012 |
+| 1.00% | 0.001 | 0.022 | 0.000 | 0.009 | 0.012 |
+| 100% | 0.034 | 1.392 | 0.000 | 0.054 | 0.057 |
+
+#### Constrained retrieval
+
+Balanced preset view: 24 selected slots, 8 active SIMD blocks.
+
+| Case | ms/query | vs cached |
+|---|---:|---:|
+| cached mask search | 0.020 | 1.0x |
+| rebuild graph+metadata view | 0.048 | 2.4x |
+| candidate intersection on cached base view | 0.008 | 0.4x |
 
 #### Post-filter curve (composition penalty)
 
 | fetch_k | recall@10 | post_filter ms |
 |---:|---:|---:|
-| 10 | 0.00 | 0.097 |
-| 640 | 0.20 | 0.722 |
-| 8192 | 1.00 | 21.465 |
+| 10 | 0.00 | 0.062 |
+| 640 | 0.20 | 1.684 |
+| 8192 | 1.00 | 21.314 |
 
 This models **wrong pipeline order** (global ANN then filter). turbovec avoids it when `allowlist` exists pre-search; turbo-graph targets expensive allowlist **construction**.
 

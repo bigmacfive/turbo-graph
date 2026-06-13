@@ -139,6 +139,27 @@ fn packed_slot_mask_matches_bool_mask() {
 }
 
 #[test]
+fn bulk_slot_mask_builder_matches_incremental_allow() {
+    let n = 10_000;
+    let slots: Vec<usize> = (0..n)
+        .filter(|slot| slot % 3 == 0 || slot % 97 == 0 || *slot == n - 1)
+        .chain([7, 7, 4096, 4096])
+        .collect();
+
+    let bulk = SlotMask::from_slots(n, slots.iter().copied());
+    let mut incremental = SlotMask::new(n);
+    for &slot in &slots {
+        incremental.allow(slot);
+    }
+
+    assert_eq!(bulk, incremental);
+    assert_eq!(
+        bulk.allowed_slots().collect::<Vec<_>>(),
+        incremental.allowed_slots().collect::<Vec<_>>()
+    );
+}
+
+#[test]
 fn all_slot_mask_uses_unmasked_fast_path() {
     let dim = 64;
     let n = 1024;

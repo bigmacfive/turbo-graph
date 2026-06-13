@@ -55,10 +55,39 @@ impl SlotMask {
     where
         I: IntoIterator<Item = usize>,
     {
-        let mut mask = Self::new(len);
-        for slot in slots {
-            mask.allow(slot);
+        let slots = slots.into_iter();
+        let block_count = n_blocks(len);
+        let incremental_cutoff = (block_count / 2).max(64);
+        if slots
+            .size_hint()
+            .1
+            .is_some_and(|upper| upper <= incremental_cutoff)
+        {
+            let mut mask = Self::new(len);
+            for slot in slots {
+                mask.allow(slot);
+            }
+            return mask;
         }
+
+        let mut mask = Self {
+            len,
+            words: vec![0; n_words(len)],
+            count: 0,
+            block_counts: Vec::new(),
+            active_blocks: Vec::new(),
+        };
+        for slot in slots {
+            assert!(
+                slot < len,
+                "slot {slot} out of range for SlotMask length {}",
+                len
+            );
+            let word = slot >> 6;
+            let bit = 1u64 << (slot & 63);
+            mask.words[word] |= bit;
+        }
+        mask.rebuild_counts_and_blocks();
         mask
     }
 

@@ -2051,7 +2051,7 @@ impl GraphMemoryIndex {
 
         self.cache_access.graph_views.record_miss();
 
-        let mut mask = SlotMask::new(self.len());
+        let mut selected_slots = Vec::new();
         let mut seen = HashSet::new();
         let mut queue = VecDeque::new();
         for &seed in &key.seeds {
@@ -2062,7 +2062,7 @@ impl GraphMemoryIndex {
 
         while let Some((id, depth)) = queue.pop_front() {
             if let Some(&slot) = self.id_to_slot.get(&id) {
-                mask.allow(slot);
+                selected_slots.push(slot);
             }
             if depth == max_hops {
                 continue;
@@ -2076,6 +2076,7 @@ impl GraphMemoryIndex {
             }
         }
 
+        let mask = SlotMask::from_slots(self.len(), selected_slots);
         self.view_cache.insert(key, mask.clone());
         let stats = GraphViewStats {
             total_slots: self.len(),
@@ -3713,8 +3714,8 @@ impl GraphMemoryIndex {
 
     /// Bound each graph/search-result cache to at most `max_entries_per_cache`.
     ///
-    /// This is a simple memory cap, not an LRU policy; it keeps an arbitrary
-    /// subset of each internal cache.
+    /// This is a simple deterministic memory cap, not an LRU policy. It keeps
+    /// the lexicographically last debug-formatted keys in each internal cache.
     pub fn trim_query_caches(&mut self, max_entries_per_cache: usize) {
         trim_hash_map(&mut self.view_cache, max_entries_per_cache);
         trim_hash_map(&mut self.policy_visit_cache, max_entries_per_cache);
@@ -4141,7 +4142,7 @@ impl GraphMemoryIndex {
         &self,
         candidate_scores: &[(u64, f32)],
     ) -> CandidateScoreMaskBuild {
-        let mut mask = SlotMask::new(self.len());
+        let mut candidate_slots = Vec::new();
         let mut seen = HashSet::with_capacity(candidate_scores.len());
         let mut missing_ids = 0;
         let mut duplicate_ids = 0;
@@ -4160,7 +4161,7 @@ impl GraphMemoryIndex {
                 continue;
             };
             if first_seen {
-                mask.allow(slot);
+                candidate_slots.push(slot);
             }
 
             let score = finite_or(score, 0.0);
@@ -4174,6 +4175,7 @@ impl GraphMemoryIndex {
                 .or_insert(score);
         }
 
+        let mask = SlotMask::from_slots(self.len(), candidate_slots);
         CandidateScoreMaskBuild {
             candidate: CandidateMaskBuild {
                 input_ids: candidate_scores.len(),
@@ -4187,7 +4189,7 @@ impl GraphMemoryIndex {
     }
 
     fn candidate_id_mask_with_stats(&self, ids: &[u64]) -> CandidateMaskBuild {
-        let mut mask = SlotMask::new(self.len());
+        let mut candidate_slots = Vec::new();
         let mut seen = HashSet::with_capacity(ids.len());
         let mut missing_ids = 0;
         let mut duplicate_ids = 0;
@@ -4201,9 +4203,10 @@ impl GraphMemoryIndex {
                 missing_ids += 1;
                 continue;
             };
-            mask.allow(slot);
+            candidate_slots.push(slot);
         }
 
+        let mask = SlotMask::from_slots(self.len(), candidate_slots);
         CandidateMaskBuild {
             input_ids: ids.len(),
             candidate_slots: mask.count(),
@@ -4538,14 +4541,17 @@ fn query_count_for_dim(queries: &[f32], dim: usize) -> usize {
 
 fn trim_hash_map<K, V>(map: &mut HashMap<K, V>, max_entries: usize)
 where
-    K: Eq + Hash + Clone,
+    K: Eq + Hash + Clone + fmt::Debug,
 {
     if map.len() <= max_entries {
         return;
     }
-    let remove_count = map.len() - max_entries;
-    let keys: Vec<K> = map.keys().take(remove_count).cloned().collect();
+    let mut keys: Vec<K> = map.keys().cloned().collect();
+    keys.sort_unstable_by_key(|key| format!("{key:?}"));
     for key in keys {
+        if map.len() <= max_entries {
+            break;
+        }
         map.remove(&key);
     }
 }

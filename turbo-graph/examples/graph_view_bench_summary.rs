@@ -144,7 +144,9 @@ fn print_summary(csv: &BenchCsv) -> ComparisonRow {
     );
 
     print_selectivity(csv);
+    print_build_and_compile(csv);
     print_presets(csv);
+    print_constrained(csv);
     let (full_recall_fetch, full_recall_post_direct) = print_post_filter(csv);
 
     ComparisonRow {
@@ -202,6 +204,46 @@ fn print_selectivity(csv: &BenchCsv) {
             fmt_opt(slot_ratio),
             fmt_opt(graph_ratio),
             fmt_opt(graph_over_slot),
+        );
+    }
+}
+
+fn print_build_and_compile(csv: &BenchCsv) {
+    let mut selectivities = BTreeMap::new();
+    for row in csv.rows_for("mask_build") {
+        selectivities
+            .entry(csv.value(row, "selectivity").to_string())
+            .or_insert_with(Vec::new)
+            .push(row);
+    }
+    for row in csv.rows_for("view_compile") {
+        selectivities
+            .entry(csv.value(row, "selectivity").to_string())
+            .or_insert_with(Vec::new)
+            .push(row);
+    }
+    if selectivities.is_empty() {
+        return;
+    }
+
+    println!("build_compile:");
+    println!(
+        "{:>8} {:>8} {:>8} {:>12} {:>12} {:>12}",
+        "sel%", "allowed", "blocks", "mask_ms", "cold_ms", "warm_ms"
+    );
+    for (selectivity, rows) in selectivities {
+        let mask = find_case(csv, &rows, "slot_mask_from_slots");
+        let cold = find_case(csv, &rows, "graph_view_cold");
+        let warm = find_case(csv, &rows, "graph_view_warm");
+        let representative = mask.or(cold).or(warm);
+        println!(
+            "{:>8} {:>8} {:>8} {:>12} {:>12} {:>12}",
+            pct_str(&selectivity),
+            fmt_usize(representative.and_then(|row| csv.integer(row, "allowed"))),
+            fmt_usize(representative.and_then(|row| csv.integer(row, "active_blocks"))),
+            fmt_opt(mask.and_then(|row| csv.number(row, "ms_per_iter"))),
+            fmt_opt(cold.and_then(|row| csv.number(row, "ms_per_iter"))),
+            fmt_opt(warm.and_then(|row| csv.number(row, "ms_per_iter"))),
         );
     }
 }
@@ -268,6 +310,34 @@ fn print_presets(csv: &BenchCsv) {
             fmt_opt(overhead),
             fmt_opt(batch_over_graph),
         );
+    }
+}
+
+fn print_constrained(csv: &BenchCsv) {
+    let rows = csv.rows_for("constrained");
+    if rows.is_empty() {
+        return;
+    }
+
+    println!("constrained:");
+    println!(
+        "{:>22} {:>12} {:>12} {:>12}",
+        "case", "ms/iter", "vs_cached", "blocks_skip"
+    );
+    for case in ["cached_mask_search", "rebuild_view", "candidate_intersect"] {
+        if let Some(row) = rows
+            .iter()
+            .copied()
+            .find(|row| csv.value(row, "case") == case)
+        {
+            println!(
+                "{:>22} {:>12} {:>12} {:>12}",
+                case,
+                fmt_opt(csv.number(row, "ms_per_iter")),
+                fmt_opt(csv.number(row, "ratio_to_global")),
+                fmt_usize(csv.integer(row, "blocks_skipped")),
+            );
+        }
     }
 }
 

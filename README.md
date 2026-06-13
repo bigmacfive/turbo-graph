@@ -245,6 +245,13 @@ Low selectivity is already fast with kernel `SlotMask`. turbo-graph's target
 win is repeated compilation and reuse of **`graph ∩ metadata ∩ candidates`**
 views.
 
+`graph_view_bench` now separates warm steady-state search from one-shot view
+compilation. On the synthetic 16,384 x 64 harness with `--iters 3`, the
+balanced constrained view selected 24 slots across 8 active SIMD blocks:
+cached mask search was about 0.020 ms/query, rebuilding the graph+metadata view
+was about 2.4x that cost, and global post-filtering needed `fetch_k=8192` to
+recover full recall.
+
 **Shared limits:** brute-force O(n) scan, not HNSW/IVF; 2-4 bit approximation;
 TQ+ needs at least 1000 vectors on the first `add`; pin versions for production
 services.
@@ -392,6 +399,9 @@ python3 benchmarks/suite/speed_d1536_2bit_arm_mt.py
 cargo run -p turbo-graph --release --example graph_view_bench -- --iters 3 --csv /tmp/graph-view-bench.csv
 cargo run -p turbo-graph --release --example graph_view_bench_summary -- /tmp/graph-view-bench.csv
 ```
+
+The graph benchmark prints warmup-aware selectivity, mask-build, cold/warm
+view-compile, constrained-retrieval, and post-filter overfetch rows.
 
 For release checks:
 

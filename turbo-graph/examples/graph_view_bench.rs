@@ -22,6 +22,7 @@ const DEFAULT_DIM: usize = 64;
 const DEFAULT_N: usize = 16_384;
 const K: usize = 10;
 const DEFAULT_ITERS: usize = 50;
+const DEFAULT_WARMUP_ITERS: usize = 3;
 const BATCH_QUERY_ROWS: usize = 8;
 const SELECTIVITY: &[f32] = &[0.001, 0.01, 0.05, 0.20, 1.0];
 const WORKLOAD_FANOUT: &[usize] = &[1, 2, 4, 8, 16, 32, 64, 128];
@@ -82,7 +83,8 @@ input format:
   --vectors-f32 length must be a multiple of --dim.
   --queries-f32, when present, uses every row as a benchmark query batch.
   otherwise --query-row selects one vector row from --vectors-f32 as the query.
-  single-query modes are expanded to 8 rows so batch search paths are exercised."
+  single-query modes are expanded to 8 rows so batch search paths are exercised.
+  timed loops run 3 warmup iterations before measuring steady-state latency."
 }
 
 fn parse_config() -> Result<Option<BenchConfig>, String> {
@@ -293,6 +295,9 @@ fn fmt_f64(value: f64) -> String {
 }
 
 fn time_it(iters: usize, mut f: impl FnMut()) -> Timing {
+    for _ in 0..DEFAULT_WARMUP_ITERS {
+        f();
+    }
     reset_blocks_skipped_by_mask();
     let before = blocks_skipped_by_mask();
     let start = Instant::now();
@@ -309,6 +314,16 @@ fn time_it(iters: usize, mut f: impl FnMut()) -> Timing {
 
 fn ms_per_iter(timing: Timing, iters: usize) -> f64 {
     timing.elapsed.as_secs_f64() * 1000.0 / iters as f64
+}
+
+fn time_once(mut f: impl FnMut()) -> Duration {
+    let start = Instant::now();
+    f();
+    start.elapsed()
+}
+
+fn ms_duration(duration: Duration) -> f64 {
+    duration.as_secs_f64() * 1000.0
 }
 
 fn filtered_global_slots(
@@ -423,7 +438,7 @@ fn run_preset_workload(
         ("balanced", GraphSearchPreset::balanced()),
         ("broad", GraphSearchPreset::broad()),
     ];
-    let mut balanced_mask = None;
+    let mut balanced_case = None;
 
     println!();
     println!(
@@ -514,10 +529,11 @@ fn run_preset_workload(
         });
         let cache = memory.cache_stats();
         if name == "balanced" {
-            balanced_mask = Some((
+            balanced_case = Some((
                 mask.clone(),
                 warm.plan.selected_slots,
                 warm.plan.active_blocks,
+                tuning,
             ));
         }
 
@@ -619,7 +635,24 @@ fn run_preset_workload(
         );
     }
 
-    let (mask, selected_slots, active_blocks) = balanced_mask.expect("balanced preset ran");
+    let (mask, selected_slots, active_blocks, balanced_tuning) =
+        balanced_case.expect("balanced preset ran");
+    run_constrained_retrieval(
+        label,
+        index,
+        &mut memory,
+        query,
+        &mask,
+        workload_seed,
+        balanced_tuning.policy,
+        selected_slots,
+        active_blocks,
+        n,
+        dim,
+        k,
+        iters,
+        csv,
+    );
     run_post_filter_recall(
         label,
         index,
@@ -634,6 +667,123 @@ fn run_preset_workload(
         iters,
         csv,
     );
+}
+
+fn run_constrained_retrieval(
+    label: &str,
+    index: &TurboQuantIndex,
+    memory: &mut GraphMemoryIndex,
+    query: &[f32],
+    mask: &SlotMask,
+    workload_seed: u64,
+    policy: turbo_graph::GraphViewPolicy,
+    selected_slots: usize,
+    active_blocks: usize,
+    n: usize,
+    dim: usize,
+    k: usize,
+    iters: usize,
+    csv: &mut Option<CsvRecorder>,
+) {
+    let candidate_ids: Vec<u64> = mask
+        .allowed_slots()
+        .take((k * 4).max(1))
+        .map(|slot| slot as u64)
+        .chain([n as u64 + 10, n as u64 + 11])
+        .collect();
+
+    let cached_mask = time_it(iters, || {
+        let results = index.search_with_slot_mask(black_box(query), k, mask);
+        black_box(results.indices_for_query(0).len());
+    });
+    let rebuild_view = time_it(iters, || {
+        memory.clear_query_caches();
+        let (rebuilt, plan) = memory.graph_view_mask_with_policy_metadata_plan(
+            &[workload_seed],
+            policy,
+            &["bench"],
+            &["kuku.mom", "liner"],
+            Some(0),
+            Some(n as i64),
+        );
+        black_box(rebuilt.count());
+        black_box(plan.combined_cache_hit);
+    });
+    let _ = memory.graph_view_mask_with_policy_metadata_plan(
+        &[workload_seed],
+        policy,
+        &["bench"],
+        &["kuku.mom", "liner"],
+        Some(0),
+        Some(n as i64),
+    );
+    let candidate_intersection = time_it(iters, || {
+        let (candidate_mask, plan) = memory.graph_view_mask_with_policy_metadata_candidates_plan(
+            &[workload_seed],
+            policy,
+            &["bench"],
+            &["kuku.mom", "liner"],
+            Some(0),
+            Some(n as i64),
+            black_box(&candidate_ids),
+        );
+        black_box(candidate_mask.count());
+        black_box(plan.candidate_missing_ids);
+    });
+
+    let cached_ms = ms_per_iter(cached_mask, iters);
+    let rebuild_ms = ms_per_iter(rebuild_view, iters);
+    let candidate_ms = ms_per_iter(candidate_intersection, iters);
+
+    println!();
+    println!("constrained retrieval selected={selected_slots} active_blocks={active_blocks}");
+    println!(
+        "{:>22} {:>11} {:>13} {:>12}",
+        "case", "ms/iter", "vs_cached", "blk_skip"
+    );
+    for (case, ms, skipped) in [
+        ("cached_mask_search", cached_ms, cached_mask.skipped_blocks),
+        ("rebuild_view", rebuild_ms, rebuild_view.skipped_blocks),
+        (
+            "candidate_intersect",
+            candidate_ms,
+            candidate_intersection.skipped_blocks,
+        ),
+    ] {
+        println!(
+            "{:>22} {:>11.3} {:>13.3} {:>12}",
+            case,
+            ms,
+            ms / cached_ms.max(1e-12),
+            skipped,
+        );
+        record_csv(
+            csv,
+            vec![
+                label.to_string(),
+                "constrained".to_string(),
+                case.to_string(),
+                blank(),
+                blank(),
+                n.to_string(),
+                dim.to_string(),
+                "1".to_string(),
+                k.to_string(),
+                iters.to_string(),
+                blank(),
+                selected_slots.to_string(),
+                active_blocks.to_string(),
+                blank(),
+                fmt_f64(ms),
+                fmt_f64(ms / cached_ms.max(1e-12)),
+                skipped.to_string(),
+                memory.cache_stats().total_entries.to_string(),
+                blank(),
+                blank(),
+                fmt_f64(cached_ms),
+            ],
+        );
+    }
 }
 
 fn run_post_filter_recall(
@@ -782,7 +932,9 @@ fn run_benchmark(
     });
 
     let global_ms = ms_per_iter(global, iters);
-    println!("mode={label} vectors={n} dim={dim} queries={nq} k={k} iterations={iters}");
+    println!(
+        "mode={label} vectors={n} dim={dim} queries={nq} k={k} iterations={iters} warmup_iters={DEFAULT_WARMUP_ITERS}"
+    );
     println!("global_ms_per_iter={:.3}", global_ms);
     record_csv(
         &mut csv,
@@ -811,10 +963,13 @@ fn run_benchmark(
         ],
     );
     println!(
-        "{:>8} {:>8} {:>8} {:>11} {:>11} {:>12} {:>12} {:>12} {:>12}",
+        "{:>8} {:>8} {:>8} {:>10} {:>10} {:>10} {:>11} {:>11} {:>12} {:>12} {:>12} {:>12}",
         "sel%",
         "allowed",
         "act_blk",
+        "build_ms",
+        "cold_ms",
+        "warm_ms",
         "bool_ms",
         "slot_ms",
         "graph_ms",
@@ -828,6 +983,10 @@ fn run_benchmark(
         let start_slot = n - allowed;
         let allowed_slots: Vec<usize> = (start_slot..n).collect();
         let slot_mask = SlotMask::from_slots(n, allowed_slots.iter().copied());
+        let mask_build = time_it(iters, || {
+            let mask = SlotMask::from_slots(n, black_box(allowed_slots.iter().copied()));
+            black_box(mask.count());
+        });
         let mut bool_mask = vec![false; n];
         for &slot in &allowed_slots {
             bool_mask[slot] = true;
@@ -835,12 +994,22 @@ fn run_benchmark(
 
         let graph_seed = start_slot as u64;
         let graph_hops = allowed.saturating_sub(1);
+        let cold_compile = time_once(|| {
+            let (mask, stats) = memory.graph_view_mask_with_stats(&[graph_seed], graph_hops);
+            black_box(mask.count());
+            black_box(stats.cache_hit);
+        });
         let (first_mask, first_view) = memory.graph_view_mask_with_stats(&[graph_seed], graph_hops);
         assert_eq!(first_mask.count(), allowed);
         black_box(first_view.cache_hit);
         let (_second_mask, second_view) =
             memory.graph_view_mask_with_stats(&[graph_seed], graph_hops);
         assert!(second_view.cache_hit);
+        let warm_compile = time_it(iters, || {
+            let (mask, stats) = memory.graph_view_mask_with_stats(&[graph_seed], graph_hops);
+            black_box(mask.count());
+            black_box(stats.cache_hit);
+        });
 
         let bool_filtered = time_it(iters, || {
             let res = index.search_with_mask(black_box(&queries), k, Some(&bool_mask));
@@ -863,10 +1032,13 @@ fn run_benchmark(
         });
 
         println!(
-            "{:>8.2} {:>8} {:>8} {:>11.3} {:>11.3} {:>12.3} {:>12.3} {:>12.3} {:>12}",
+            "{:>8.2} {:>8} {:>8} {:>10.3} {:>10.3} {:>10.3} {:>11.3} {:>11.3} {:>12.3} {:>12.3} {:>12.3} {:>12}",
             selectivity * 100.0,
             allowed,
             slot_mask.active_block_count(),
+            ms_per_iter(mask_build, iters),
+            ms_duration(cold_compile),
+            ms_per_iter(warm_compile, iters),
             ms_per_iter(bool_filtered, iters),
             ms_per_iter(packed_filtered, iters),
             ms_per_iter(graph_filtered, iters),
@@ -874,6 +1046,46 @@ fn run_benchmark(
             graph_filtered.elapsed.as_secs_f64() / global.elapsed.as_secs_f64(),
             packed_filtered.skipped_blocks,
         );
+        for (phase, case, timing_ms) in [
+            (
+                "mask_build",
+                "slot_mask_from_slots",
+                ms_per_iter(mask_build, iters),
+            ),
+            ("view_compile", "graph_view_cold", ms_duration(cold_compile)),
+            (
+                "view_compile",
+                "graph_view_warm",
+                ms_per_iter(warm_compile, iters),
+            ),
+        ] {
+            record_csv(
+                &mut csv,
+                vec![
+                    label.to_string(),
+                    phase.to_string(),
+                    case.to_string(),
+                    fmt_f64(selectivity as f64),
+                    blank(),
+                    n.to_string(),
+                    dim.to_string(),
+                    nq.to_string(),
+                    k.to_string(),
+                    iters.to_string(),
+                    allowed.to_string(),
+                    allowed.to_string(),
+                    slot_mask.active_block_count().to_string(),
+                    blank(),
+                    fmt_f64(timing_ms),
+                    blank(),
+                    blank(),
+                    blank(),
+                    blank(),
+                    blank(),
+                    blank(),
+                ],
+            );
+        }
         for (case, timing) in [
             ("bool_mask", bool_filtered),
             ("slot_mask", packed_filtered),
