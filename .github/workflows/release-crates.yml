@@ -19,6 +19,7 @@ jobs:
       url: https://crates.io/crates/turbo-graph
     env:
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      USE_TRUSTED_PUBLISHING: ${{ vars.CRATES_IO_TRUSTED_PUBLISHING }}
     permissions:
       id-token: write
     steps:
@@ -44,11 +45,20 @@ jobs:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo publish -p turbo-graph
       - name: Authenticate with crates.io trusted publishing
-        if: env.CARGO_REGISTRY_TOKEN == ''
+        if: env.CARGO_REGISTRY_TOKEN == '' && env.USE_TRUSTED_PUBLISHING == 'true'
         id: auth
         uses: rust-lang/crates-io-auth-action@v1
       - name: Publish turbo-graph with trusted publishing
-        if: env.CARGO_REGISTRY_TOKEN == ''
+        if: env.CARGO_REGISTRY_TOKEN == '' && env.USE_TRUSTED_PUBLISHING == 'true'
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
         run: cargo publish -p turbo-graph
+      - name: Registry publishing not configured
+        if: env.CARGO_REGISTRY_TOKEN == '' && env.USE_TRUSTED_PUBLISHING != 'true'
+        run: |
+          {
+            echo "## crates.io publish skipped"
+            echo
+            echo "Set the CARGO_REGISTRY_TOKEN repository secret to publish immediately."
+            echo "After the first crates.io release exists, configure Trusted Publishing and set CRATES_IO_TRUSTED_PUBLISHING=true."
+          } >> "$GITHUB_STEP_SUMMARY"
