@@ -16,6 +16,11 @@ Older entries are retained as pre-0.1 development history.
   post-filtering can miss valid tenant/source/time/graph-scoped answers, plus a
   `graph_memory_debug_export --scenario rag_acl` snapshot for the debug panel.
 
+### Improved
+
+- Graph-only updates now preserve tag/source/time mask caches, and vector
+  replacement keeps compiled graph views when graph membership is unchanged.
+
 ## turbo-graph 0.1.0 — 2026-06-11
 
 First public release candidate for `bigmacfive/turbo-graph`.

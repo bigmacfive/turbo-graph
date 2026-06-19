@@ -1212,6 +1212,62 @@ fn replace_record_metadata_keeps_graph_cache_and_refreshes_metadata_views() {
 }
 
 #[test]
+fn graph_edge_updates_keep_metadata_mask_caches() {
+    let mut memory = build_memory();
+    let tag_before = memory.tag_view_mask("architecture");
+    assert_eq!(tag_before.count(), 3);
+
+    let (_graph_before, graph_before_stats) = memory.graph_view_mask_with_stats(&[10], 1);
+    assert!(!graph_before_stats.cache_hit);
+    assert_eq!(memory.cache_stats().tag_masks, 1);
+    assert_eq!(memory.cache_stats().graph_views, 1);
+
+    memory.link_directed(10, 60, 0.9).unwrap();
+    let after_link = memory.cache_stats();
+    assert_eq!(
+        after_link.tag_masks, 1,
+        "graph-only updates should not drop metadata mask caches"
+    );
+    assert_eq!(
+        after_link.graph_views, 0,
+        "graph topology updates must rebuild graph-view caches"
+    );
+
+    let tag_hits_before = after_link.tag_mask_hits;
+    let tag_after = memory.tag_view_mask("architecture");
+    let after_tag_reuse = memory.cache_stats();
+    assert_eq!(tag_after.count(), 3);
+    assert_eq!(after_tag_reuse.tag_mask_hits, tag_hits_before + 1);
+
+    let (graph_after, graph_after_stats) = memory.graph_view_mask_with_stats(&[10], 1);
+    assert!(!graph_after_stats.cache_hit);
+    assert!(graph_after.contains(memory.slot_of(60).unwrap()));
+}
+
+#[test]
+fn replace_embedding_keeps_compiled_views_and_metadata_masks() {
+    let mut memory = build_memory();
+    let (_graph_before, graph_before_stats) = memory.graph_view_mask_with_stats(&[10], 2);
+    assert!(!graph_before_stats.cache_hit);
+    let tag_before = memory.tag_view_mask("architecture");
+    assert_eq!(tag_before.count(), 3);
+
+    let query = normalized_vectors(1, memory.dim(), 0x6A9A_2025);
+    memory.replace_embedding(30, &query).unwrap();
+
+    let tag_hits_before = memory.cache_stats().tag_mask_hits;
+    let tag_after = memory.tag_view_mask("architecture");
+    assert_eq!(tag_after.count(), 3);
+    assert_eq!(memory.cache_stats().tag_mask_hits, tag_hits_before + 1);
+
+    let (_graph_after, graph_after_stats) = memory.graph_view_mask_with_stats(&[10], 2);
+    assert!(
+        graph_after_stats.cache_hit,
+        "vector replacement does not change graph view membership"
+    );
+}
+
+#[test]
 fn source_and_time_masks_filter_search_and_roundtrip() {
     let dim = 64;
     let data = normalized_vectors(4, dim, 0x6A9A_2003);

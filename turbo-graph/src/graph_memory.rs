@@ -1945,7 +1945,6 @@ impl GraphMemoryIndex {
         let moved_from = self.index.swap_remove(old_slot);
         debug_assert_eq!(moved_from, old_len);
         debug_assert_eq!(self.index.len(), old_len);
-        self.invalidate_views();
         Ok(())
     }
 
@@ -2012,7 +2011,7 @@ impl GraphMemoryIndex {
         } else {
             neighbors.push(MemoryEdge { to, weight });
         }
-        self.invalidate_views();
+        self.invalidate_graph_views();
         Ok(())
     }
 
@@ -4312,10 +4311,14 @@ impl GraphMemoryIndex {
     }
 
     fn invalidate_views(&mut self) {
-        self.view_cache.clear();
+        self.invalidate_graph_views();
         self.tag_cache.clear();
         self.source_cache.clear();
         self.time_cache.clear();
+    }
+
+    fn invalidate_graph_views(&mut self) {
+        self.view_cache.clear();
         self.combined_view_cache.clear();
         self.policy_visit_cache.clear();
         self.policy_view_cache.clear();
