@@ -10,6 +10,12 @@ Older entries are retained as pre-0.1 development history.
 
 ## [Unreleased]
 
+### Added
+
+- **RAG constraint replay demo** showing why global vector top-k followed by
+  post-filtering can miss valid tenant/source/time/graph-scoped answers, plus a
+  `graph_memory_debug_export --scenario rag_acl` snapshot for the debug panel.
+
 ## turbo-graph 0.1.0 — 2026-06-11
 
 First public release candidate for `bigmacfive/turbo-graph`.

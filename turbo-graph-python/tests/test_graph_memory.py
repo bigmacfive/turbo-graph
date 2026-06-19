@@ -299,6 +299,24 @@ def test_graph_memory_rag_example_runs():
     assert '"batch_hit_ids"' in completed.stdout
 
 
+def test_graph_memory_constraint_replay_example_runs():
+    example = (
+        Path(__file__).resolve().parents[1]
+        / "examples"
+        / "graph_memory_constraint_replay.py"
+    )
+    completed = subprocess.run(
+        [sys.executable, str(example)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "global top-3 then filter" in completed.stdout
+    assert "turbo-graph constrained" in completed.stdout
+    assert "candidate_missing_ids=1" in completed.stdout
+    assert "candidate_duplicate_ids=1" in completed.stdout
+
+
 def test_graph_memory_record_validation_and_duplicate_ids():
     memory = GraphMemoryIndex(DIM, 4)
     vectors = np.vstack([_unit(0), _unit(1)]).astype(np.float32)

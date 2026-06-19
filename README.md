@@ -32,6 +32,32 @@ turbo-graph keeps the turbovec/TurboQuant core and adds:
 - explain/cache telemetry
 - Python `GraphMemoryIndex`
 
+## 30-second demo
+
+**Stop overfetching RAG results. Search inside
+`tenant ∩ graph ∩ tag ∩ source ∩ time ∩ BM25 candidates` directly.**
+
+```bash
+python3 turbo-graph-python/examples/graph_memory_constraint_replay.py
+cargo run -p turbo-graph --features serde --example graph_memory_debug_export -- \
+  --scenario rag_acl --output /tmp/turbo-graph-rag.json
+```
+
+The Python replay prints the failure mode:
+
+```text
+path                         fetched        after_policy    ns
+global top-3 then filter     [1050, 1060, 1040] []            ...
+candidate ids only           [1050, 1060, 1040] []            ...
+turbo-graph constrained      [1030, 1020, 1070] [1030, 1020, 1070] ...
+
+planner: selected_slots=3 active_blocks=1 candidate_missing_ids=1 candidate_duplicate_ids=1
+```
+
+Open [`turbo-graph/examples/graph_memory_panel.html`](turbo-graph/examples/graph_memory_panel.html)
+and load `/tmp/turbo-graph-rag.json` to inspect the constrained graph view,
+stale/duplicate candidate ids, cache telemetry, and ranked hits.
+
 ## When should I use this?
 
 Use **turbovec** when:

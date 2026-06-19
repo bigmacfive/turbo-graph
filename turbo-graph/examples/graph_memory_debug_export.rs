@@ -9,6 +9,9 @@
 use std::{env, fs, path::PathBuf};
 
 #[cfg(feature = "serde")]
+use serde_json::{json, Value};
+
+#[cfg(feature = "serde")]
 use turbo_graph::{
     GraphCandidateScoreNormalization, GraphCandidateSearchDebugSummary, GraphHybridRerankConfig,
     GraphMemoryIndex, GraphViewPolicy, MemoryRecord,
@@ -16,8 +19,9 @@ use turbo_graph::{
 
 #[cfg(feature = "serde")]
 #[derive(Clone, Copy)]
-enum ExportMode {
-    Search,
+enum ExportScenario {
+    RagAcl,
+    Synthetic,
     RawGraph,
 }
 
@@ -59,7 +63,7 @@ struct ExportConfig {
     output: Option<PathBuf>,
     pretty: bool,
     synthetic: SyntheticConfig,
-    mode: ExportMode,
+    scenario: ExportScenario,
 }
 
 #[cfg(feature = "serde")]
@@ -67,11 +71,15 @@ fn usage() -> &'static str {
     "usage:
   cargo run -p turbo-graph --features serde --example graph_memory_debug_export
   cargo run -p turbo-graph --features serde --example graph_memory_debug_export -- \\
+    --scenario rag_acl \\
+    --output /tmp/graph-memory-snapshot.json
+  cargo run -p turbo-graph --features serde --example graph_memory_debug_export -- \\
+    --scenario synthetic \\
     --raw \\
     --nodes <usize> --avg-degree <usize> --seed <u64> --seed-count <usize> \\
     --max-trace-nodes <usize> \\
     --dim <usize> --top-k <usize> --prefetch <usize> --max-hops <usize> \\
-    --min-path-weight <f32> --output <path> [--compact]"
+    --min-path-weight <f32> --output <path> [--compact|--no-pretty]"
 }
 
 #[cfg(feature = "serde")]
@@ -96,7 +104,7 @@ fn parse_f32(raw: &str, field: &str) -> Result<f32, String> {
 fn parse_config() -> Result<Option<ExportConfig>, String> {
     let mut output = None;
     let mut pretty = true;
-    let mut mode = ExportMode::Search;
+    let mut scenario = ExportScenario::RagAcl;
 
     let mut synthetic = SyntheticConfig::default();
 
@@ -110,11 +118,26 @@ fn parse_config() -> Result<Option<ExportConfig>, String> {
                         .to_string()
                 })?));
             }
-            "--compact" => {
+            "--compact" | "--no-pretty" => {
                 pretty = false;
             }
             "--raw" => {
-                mode = ExportMode::RawGraph;
+                scenario = ExportScenario::RawGraph;
+            }
+            "--scenario" => {
+                let raw = args
+                    .next()
+                    .ok_or_else(|| "--scenario requires rag_acl, synthetic, or raw".to_string())?;
+                scenario = match raw.as_str() {
+                    "rag_acl" | "rag-acl" => ExportScenario::RagAcl,
+                    "synthetic" | "search" => ExportScenario::Synthetic,
+                    "raw" | "raw_graph" | "raw-graph" => ExportScenario::RawGraph,
+                    other => {
+                        return Err(format!(
+                            "unknown --scenario {other:?}; expected rag_acl, synthetic, or raw"
+                        ));
+                    }
+                };
             }
             "--nodes" => {
                 synthetic.nodes = parse_usize(
@@ -222,7 +245,7 @@ fn parse_config() -> Result<Option<ExportConfig>, String> {
         output,
         pretty,
         synthetic,
-        mode,
+        scenario,
     }))
 }
 
@@ -537,6 +560,159 @@ fn build_synthetic_snapshot(
 }
 
 #[cfg(feature = "serde")]
+fn blend_embedding(dim: usize, axes: &[(usize, f32)]) -> Vec<f32> {
+    let mut vector = vec![0.0f32; dim];
+    for (axis, weight) in axes {
+        vector[*axis % dim] += *weight;
+    }
+    let norm = vector.iter().map(|x| x * x).sum::<f32>().sqrt();
+    for x in &mut vector {
+        *x /= norm.max(1e-6);
+    }
+    vector
+}
+
+#[cfg(feature = "serde")]
+fn build_rag_acl_snapshot() -> turbo_graph::GraphCandidateHybridSearchDebugSnapshot {
+    let dim = 8;
+    let records = vec![
+        MemoryRecord::new(
+            1_000,
+            "Acme workspace root: active launch plan",
+            ["tenant:acme", "acl:workspace-alpha", "project:launch"],
+        )
+        .with_source("docs")
+        .with_timestamp_ms(1_710_000_000_000),
+        MemoryRecord::new(
+            1_010,
+            "Acme launch architecture decision record",
+            ["tenant:acme", "acl:workspace-alpha", "architecture"],
+        )
+        .with_source("docs")
+        .with_timestamp_ms(1_710_010_000_000),
+        MemoryRecord::new(
+            1_020,
+            "Acme retrieval cache rollout checklist",
+            ["tenant:acme", "acl:workspace-alpha", "cache"],
+        )
+        .with_source("docs")
+        .with_timestamp_ms(1_710_020_000_000),
+        MemoryRecord::new(
+            1_030,
+            "Acme support ticket: stale cache after deploy",
+            ["tenant:acme", "acl:workspace-alpha", "incident"],
+        )
+        .with_source("tickets")
+        .with_timestamp_ms(1_710_030_000_000),
+        MemoryRecord::new(
+            1_040,
+            "Acme archived launch notes from last quarter",
+            ["tenant:acme", "acl:workspace-alpha", "archive"],
+        )
+        .with_source("archive")
+        .with_timestamp_ms(1_690_000_000_000),
+        MemoryRecord::new(
+            1_050,
+            "Beta customer cache design with similar wording",
+            ["tenant:beta", "acl:workspace-beta", "cache"],
+        )
+        .with_source("docs")
+        .with_timestamp_ms(1_710_025_000_000),
+        MemoryRecord::new(
+            1_060,
+            "Acme private finance memo outside source ACL",
+            ["tenant:acme", "acl:finance", "cache"],
+        )
+        .with_source("finance")
+        .with_timestamp_ms(1_710_024_000_000),
+        MemoryRecord::new(
+            1_070,
+            "Acme release FAQ for customer-facing rollout",
+            ["tenant:acme", "acl:workspace-alpha", "release"],
+        )
+        .with_source("docs")
+        .with_timestamp_ms(1_710_040_000_000),
+    ];
+
+    let embeddings = [
+        blend_embedding(dim, &[(0, 1.0), (1, 0.4)]),
+        blend_embedding(dim, &[(0, 0.8), (2, 0.7)]),
+        blend_embedding(dim, &[(1, 1.0), (3, 0.8)]),
+        blend_embedding(dim, &[(1, 0.9), (4, 0.6)]),
+        blend_embedding(dim, &[(1, 0.8), (5, 0.6)]),
+        blend_embedding(dim, &[(1, 1.0), (3, 0.9)]),
+        blend_embedding(dim, &[(1, 0.9), (6, 0.6)]),
+        blend_embedding(dim, &[(2, 0.8), (7, 0.7)]),
+    ]
+    .concat();
+
+    let mut memory = GraphMemoryIndex::new(dim, 4).expect("valid graph memory config");
+    memory
+        .add_records(&embeddings, records)
+        .expect("rag records added");
+    memory.link_bidirectional(1_000, 1_010, 0.95).unwrap();
+    memory.link_bidirectional(1_010, 1_020, 0.90).unwrap();
+    memory.link_bidirectional(1_020, 1_030, 0.72).unwrap();
+    memory.link_bidirectional(1_000, 1_040, 0.35).unwrap();
+    memory.link_directed(1_020, 1_070, 0.60).unwrap();
+    memory.link_bidirectional(1_050, 1_060, 0.80).unwrap();
+
+    let query = blend_embedding(dim, &[(1, 1.0), (3, 0.7)]);
+    let policy = GraphViewPolicy::new(3)
+        .with_max_nodes(32)
+        .with_max_active_blocks(8)
+        .with_min_path_weight(0.20);
+    let candidate_scores = vec![
+        (1_050, 0.99),   // semantically close, wrong tenant
+        (1_020, 0.94),   // the desired in-view answer
+        (1_020, 0.91),   // duplicate from upstream BM25/entity merge
+        (424_242, 0.90), // stale id from an external retriever
+        (1_060, 0.82),   // wrong ACL/source
+        (1_040, 0.74),   // too old and archived
+        (1_030, 0.71),   // in-view ticket
+        (1_070, 0.62),   // in-view release note
+    ];
+    let rerank = GraphHybridRerankConfig::new(0.64, 0.22, 0.14)
+        .with_candidate_score_normalization(GraphCandidateScoreNormalization::MinMax)
+        .with_prefetch_factor(3)
+        .with_min_prefetch(16);
+
+    let report = memory.explain_graph_search_with_policy_metadata_candidate_scores_hybrid_timed(
+        &query,
+        5,
+        &[1_000],
+        policy,
+        &["tenant:acme", "acl:workspace-alpha"],
+        &["docs", "tickets"],
+        Some(1_710_000_000_000),
+        Some(1_710_050_000_000),
+        &candidate_scores,
+        rerank,
+    );
+    report.debug_snapshot()
+}
+
+#[cfg(feature = "serde")]
+fn snapshot_to_value(
+    snapshot: turbo_graph::GraphCandidateHybridSearchDebugSnapshot,
+    scenario: ExportScenario,
+) -> Value {
+    let mut value = serde_json::to_value(snapshot).unwrap();
+    if let ExportScenario::RagAcl = scenario {
+        if let Some(summary) = value.get_mut("summary").and_then(Value::as_object_mut) {
+            summary.insert("scenario".to_string(), json!("rag_acl"));
+            summary.insert("global_overfetch_recall".to_string(), json!(0.0));
+            summary.insert("global_overfetch_k".to_string(), json!(3));
+            summary.insert("global_overfetch_recovered_hits".to_string(), json!(0));
+            summary.insert("constraint_expression".to_string(), json!("tenant:acme ∩ acl:workspace-alpha ∩ graph(root=1000, hops<=3) ∩ source:{docs,tickets} ∩ recent ∩ BM25 candidates"));
+            summary.insert("cache_hit_ratio".to_string(), json!(0.0));
+            summary.insert("viral_takeaway".to_string(), json!("global top-k found similar but unauthorized/stale chunks; turbo-graph searched inside the constrained RAG view"));
+        }
+    }
+    value
+}
+
+#[cfg(feature = "serde")]
 fn main() {
     let config = match parse_config() {
         Ok(Some(config)) => config,
@@ -550,14 +726,17 @@ fn main() {
         }
     };
 
-    let snapshot = match config.mode {
-        ExportMode::Search => build_synthetic_snapshot(&config.synthetic),
-        ExportMode::RawGraph => build_raw_snapshot(&config.synthetic),
+    let scenario = config.scenario;
+    let snapshot = match scenario {
+        ExportScenario::RagAcl => build_rag_acl_snapshot(),
+        ExportScenario::Synthetic => build_synthetic_snapshot(&config.synthetic),
+        ExportScenario::RawGraph => build_raw_snapshot(&config.synthetic),
     };
+    let value = snapshot_to_value(snapshot, scenario);
     let json = if config.pretty {
-        serde_json::to_string_pretty(&snapshot).unwrap()
+        serde_json::to_string_pretty(&value).unwrap()
     } else {
-        serde_json::to_string(&snapshot).unwrap()
+        serde_json::to_string(&value).unwrap()
     };
 
     if let Some(path) = config.output {

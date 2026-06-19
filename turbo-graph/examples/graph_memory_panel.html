@@ -1086,6 +1086,12 @@
         ["nodes", visibleNodes.length],
         ["edges", visibleEdges.length],
         ["selected_slots", summary.selected_slots ?? "-"],
+        ["global_overfetch_recall", summary.global_overfetch_recall == null ? "-" : pct(summary.global_overfetch_recall)],
+        ["stale_candidate_ids", summary.candidate_missing_ids ?? "-"],
+        ["duplicate_candidate_ids", summary.candidate_duplicate_ids ?? "-"],
+        ["constraint", summary.constraint_expression ? "loaded" : "-"],
+        ["active_blocks", summary.active_blocks ?? "-"],
+        ["cache_hit_ratio", summary.cache_hit_ratio == null ? "-" : pct(summary.cache_hit_ratio)],
         ["graph_cache_hit", summary.graph_cache_hit ? "hit" : "miss"],
         ["combined_hit", summary.combined_cache_hit ? "hit" : "miss"],
         ["selectivity", pct(summary.selectivity)],
@@ -1107,6 +1113,9 @@
       const topDegree = [...visibleNodes].sort((a, b) => (b._deg || 0) - (a._deg || 0))[0];
       const topNode = topDegree ? topDegree.id : "-";
       const edgeStride = state.edgeStride || 1;
+      const summary = snapshot.summary || {};
+      const constraint = summary.constraint_expression || "graph + metadata + candidate view";
+      const takeaway = summary.viral_takeaway || "Constrained search keeps vector work inside the compiled graph view.";
       viewHintEl.innerHTML = `
         <article class="item">
           <div class="name">Visible budget</div>
@@ -1124,8 +1133,10 @@
         <article class="item">
           <div class="name">Selection</div>
           <div class="meta">
-            <span>selected ${selected}</span>
-            <span>max degree ${topNode}</span>
+            <span>selected ${esc(selected)}</span>
+            <span>max degree ${esc(topNode)}</span>
+            <span>${esc(constraint)}</span>
+            <span>${esc(takeaway)}</span>
           </div>
         </article>
       `;
@@ -1279,12 +1290,219 @@
     }
 
     function buildDefaultSnapshot() {
-      return buildStressSnapshot({
-        nodeCount: 2_000,
-        avgDegree: 7,
-        hitCount: 160,
-        seed: 0xbad_c0fe,
-      });
+      return buildRagAclSnapshot();
+    }
+
+    function buildRagAclSnapshot() {
+      const nodes = [
+        {
+          id: "1000",
+          slot: 0,
+          depth: 0,
+          parent: null,
+          via_weight: 1,
+          path_weight: 1,
+          hit_rank: null,
+          score: null,
+          vector_score: null,
+          graph_score: null,
+          candidate_score: null,
+          title: "Acme workspace root: active launch plan",
+          tags: ["tenant:acme", "acl:workspace-alpha", "project:launch"],
+          source: "docs",
+          timestamp_ms: 1_710_000_000_000,
+        },
+        {
+          id: "1010",
+          slot: 1,
+          depth: 1,
+          parent: "1000",
+          via_weight: 0.95,
+          path_weight: 0.95,
+          hit_rank: null,
+          score: null,
+          vector_score: null,
+          graph_score: null,
+          candidate_score: null,
+          title: "Acme launch architecture decision record",
+          tags: ["tenant:acme", "acl:workspace-alpha", "architecture"],
+          source: "docs",
+          timestamp_ms: 1_710_010_000_000,
+        },
+        {
+          id: "1020",
+          slot: 2,
+          depth: 2,
+          parent: "1010",
+          via_weight: 0.9,
+          path_weight: 0.855,
+          hit_rank: 1,
+          score: 0.983,
+          vector_score: 0.92,
+          graph_score: 0.855,
+          candidate_score: 0.94,
+          title: "Acme retrieval cache rollout checklist",
+          tags: ["tenant:acme", "acl:workspace-alpha", "cache"],
+          source: "docs",
+          timestamp_ms: 1_710_020_000_000,
+        },
+        {
+          id: "1030",
+          slot: 3,
+          depth: 3,
+          parent: "1020",
+          via_weight: 0.72,
+          path_weight: 0.616,
+          hit_rank: 2,
+          score: 0.812,
+          vector_score: 0.86,
+          graph_score: 0.616,
+          candidate_score: 0.71,
+          title: "Acme support ticket: stale cache after deploy",
+          tags: ["tenant:acme", "acl:workspace-alpha", "incident"],
+          source: "tickets",
+          timestamp_ms: 1_710_030_000_000,
+        },
+        {
+          id: "1040",
+          slot: 4,
+          depth: 1,
+          parent: "1000",
+          via_weight: 0.35,
+          path_weight: 0.35,
+          hit_rank: null,
+          score: null,
+          vector_score: null,
+          graph_score: null,
+          candidate_score: 0.74,
+          title: "Acme archived launch notes from last quarter",
+          tags: ["tenant:acme", "acl:workspace-alpha", "archive"],
+          source: "archive",
+          timestamp_ms: 1_690_000_000_000,
+        },
+        {
+          id: "1050",
+          slot: 5,
+          depth: 9,
+          parent: null,
+          via_weight: 0,
+          path_weight: 0,
+          hit_rank: null,
+          score: null,
+          vector_score: 0.99,
+          graph_score: 0,
+          candidate_score: 0.99,
+          title: "Beta customer cache design with similar wording",
+          tags: ["tenant:beta", "acl:workspace-beta", "cache"],
+          source: "docs",
+          timestamp_ms: 1_710_025_000_000,
+        },
+        {
+          id: "1060",
+          slot: 6,
+          depth: 9,
+          parent: null,
+          via_weight: 0,
+          path_weight: 0,
+          hit_rank: null,
+          score: null,
+          vector_score: 0.98,
+          graph_score: 0,
+          candidate_score: 0.82,
+          title: "Acme private finance memo outside source ACL",
+          tags: ["tenant:acme", "acl:finance", "cache"],
+          source: "finance",
+          timestamp_ms: 1_710_024_000_000,
+        },
+        {
+          id: "1070",
+          slot: 7,
+          depth: 3,
+          parent: "1020",
+          via_weight: 0.6,
+          path_weight: 0.513,
+          hit_rank: 3,
+          score: 0.694,
+          vector_score: 0.74,
+          graph_score: 0.513,
+          candidate_score: 0.62,
+          title: "Acme release FAQ for customer-facing rollout",
+          tags: ["tenant:acme", "acl:workspace-alpha", "release"],
+          source: "docs",
+          timestamp_ms: 1_710_040_000_000,
+        },
+      ];
+      const edges = [
+        { from: "1000", to: "1010", weight: 0.95 },
+        { from: "1010", to: "1000", weight: 0.95 },
+        { from: "1010", to: "1020", weight: 0.9 },
+        { from: "1020", to: "1010", weight: 0.9 },
+        { from: "1020", to: "1030", weight: 0.72 },
+        { from: "1030", to: "1020", weight: 0.72 },
+        { from: "1000", to: "1040", weight: 0.35 },
+        { from: "1040", to: "1000", weight: 0.35 },
+        { from: "1020", to: "1070", weight: 0.6 },
+        { from: "1050", to: "1060", weight: 0.8 },
+        { from: "1060", to: "1050", weight: 0.8 },
+      ];
+      const hits = nodes
+        .filter((node) => node.hit_rank != null)
+        .map((node) => ({
+          rank: node.hit_rank,
+          id: node.id,
+          score: node.score,
+          vector_score: node.vector_score,
+          graph_score: node.graph_score,
+          candidate_score: node.candidate_score,
+          depth: node.depth,
+          parent: node.parent,
+          title: node.title,
+          tags: node.tags,
+          source: node.source,
+          timestamp_ms: node.timestamp_ms,
+        }));
+      return {
+        summary: {
+          scenario: "rag_acl",
+          total_slots: 8,
+          graph_slots: 6,
+          metadata_slots: 5,
+          candidate_input_ids: 8,
+          candidate_slots: 6,
+          candidate_missing_ids: 1,
+          candidate_duplicate_ids: 1,
+          selected_slots: 3,
+          active_blocks: 1,
+          graph_cache_hit: false,
+          combined_cache_hit: false,
+          global_overfetch_recall: 0,
+          global_overfetch_k: 3,
+          global_overfetch_recovered_hits: 0,
+          cache_hit_ratio: 0,
+          constraint_expression: "tenant:acme ∩ acl:workspace-alpha ∩ graph(root=1000, hops<=3) ∩ source:{docs,tickets} ∩ recent ∩ BM25 candidates",
+          viral_takeaway: "global top-k found similar but unauthorized/stale chunks; turbo-graph searched inside the constrained RAG view",
+          selectivity: 0.375,
+          graph_selectivity: 0.75,
+          metadata_selectivity: 0.625,
+          candidate_selectivity: 0.75,
+          active_block_selectivity: 1,
+          prefetch_k: 3,
+          hit_count: hits.length,
+          trace_node_count: nodes.length,
+          trace_edge_count: edges.length,
+        },
+        telemetry: {
+          view_build_ns: 160_000,
+          vector_search_ns: 80_000,
+          rerank_ns: 60_000,
+          trace_build_ns: 140_000,
+          total_ns: 440_000,
+          blocks_skipped_by_mask: 0,
+        },
+        hits,
+        nodes,
+        edges,
+      };
     }
 
     function buildStressSnapshot({
